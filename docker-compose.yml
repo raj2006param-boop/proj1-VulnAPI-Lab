@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  vuln:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - VULN_MODE=true
+      - PORT=3000
+    container_name: vulnapi-vulnerable
+
+  hardened:
+    build: .
+    ports:
+      - "3001:3000"
+    environment:
+      - VULN_MODE=false
+      - PORT=3000
+    container_name: vulnapi-hardened
