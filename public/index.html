@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EthicalHack.dev — Security Research & Education</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/prism.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">
+        <span class="brand-icon">&#x1F6E1;</span> EthicalHack<span class="brand-accent">.dev</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link active">Home</a>
+        <a href="level2.html" class="nav-link">Level 2</a>
+        <a href="level3.html" class="nav-link">Level 3</a>
+        <a href="cbse-case.html" class="nav-link">CBSE Case</a>
+        <a href="cert-in.html" class="nav-link">CERT-In</a>
+        <a href="disclose.html" class="nav-link">Disclose</a>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">&#9776;</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-badge">Educational Use Only &mdash; Authorized Security Research</div>
+      <h1 class="hero-title">Ethical Hacking<br><span class="gradient-text">Security Research Hub</span></h1>
+      <p class="hero-sub">Real-world vulnerability techniques, CERT-In advisories, responsible disclosure guides, and the full CBSE breach case study — all in one place.</p>
+      <div class="hero-cta">
+        <a href="level2.html" class="btn btn-primary">Start Learning</a>
+        <a href="cbse-case.html" class="btn btn-outline">CBSE Case Study</a>
+      </div>
+      <div class="hero-disclaimer">
+        <span class="disc-icon">&#9888;</span>
+        All content is for authorized testing, CTF competitions, and bug bounty programs only.
+        Unauthorized access violates India IT Act 2000 &sect;66 &amp; &sect;70.
+      </div>
+    </div>
+  </section>
+
+  <!-- LEVEL CARDS -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Vulnerability Levels</h2>
+        <p>Structured from medium to critical — each module includes attack demos, exploit analysis, and defenses.</p>
+      </div>
+      <div class="level-grid">
+
+        <div class="level-card level-medium">
+          <div class="level-tag tag-medium">Level 2 &mdash; Medium</div>
+          <div class="level-icon">&#128269;</div>
+          <h3>Web Vulnerabilities</h3>
+          <p>XSS, IDOR, broken authentication, and exposed API keys on real-world web applications.</p>
+          <ul class="level-list">
+            <li>Cross-Site Scripting (Reflected, Stored, DOM)</li>
+            <li>Insecure Direct Object Reference</li>
+            <li>Broken Authentication &amp; JWT flaws</li>
+            <li>Exposed API Keys in GitHub repos</li>
+          </ul>
+          <a href="level2.html" class="btn btn-medium">Explore Level 2 &rarr;</a>
+        </div>
+
+        <div class="level-card level-high">
+          <div class="level-tag tag-high">Level 3 &mdash; High / Critical</div>
+          <div class="level-icon">&#128680;</div>
+          <h3>Critical Exploits</h3>
+          <p>SQL injection, RCE, authentication bypass, and real-world data breach discovery.</p>
+          <ul class="level-list">
+            <li>SQL Injection (UNION, Blind, Error-based)</li>
+            <li>Remote Code Execution (SSTI, File Upload)</li>
+            <li>Authentication Bypass on Major Platforms</li>
+            <li>Data Breach Discovery &amp; CBSE Case</li>
+          </ul>
+          <a href="level3.html" class="btn btn-high">Explore Level 3 &rarr;</a>
+        </div>
+
+        <div class="level-card level-case">
+          <div class="level-tag tag-case">Real-World Case</div>
+          <div class="level-icon">&#127894;</div>
+          <h3>CBSE Breach &amp; IIT Kanpur</h3>
+          <p>How a student found 5 critical flaws in the CBSE portal — and got an offer from IIT Kanpur.</p>
+          <ul class="level-list">
+            <li>Hardcoded master password in JS source</li>
+            <li>Client-side OTP verification bypass</li>
+            <li>Public AWS S3 bucket with answer sheets</li>
+            <li>Full responsible disclosure timeline</li>
+          </ul>
+          <a href="cbse-case.html" class="btn btn-case">Read Case Study &rarr;</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CERT-IN STRIP -->
+  <section class="certin-strip">
+    <div class="container certin-inner">
+      <div class="certin-text">
+        <div class="certin-label">CERT-In Advisory &mdash; CIAD-2026-0031</div>
+        <div class="certin-title">Multiple Vulnerabilities in Adobe Products</div>
+        <div class="certin-sub">Severity: HIGH &bull; Issued: June 11, 2026 &bull; 11 products affected</div>
+      </div>
+      <a href="cert-in.html" class="btn btn-outline-light">View Advisory &rarr;</a>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="section stats-section">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-val">5</div>
+          <div class="stat-label">CBSE breach vectors</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">27M+</div>
+          <div class="stat-label">Student records exposed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">11</div>
+          <div class="stat-label">Adobe products patched</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">&#9679; Legal</div>
+          <div class="stat-label">Responsible disclosure only</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">&#x1F6E1; EthicalHack.dev</div>
+      <div class="footer-links">
+        <a href="disclose.html">Responsible Disclosure</a>
+        <a href="cert-in.html">CERT-In Advisory</a>
+        <a href="https://cert-in.org.in" target="_blank" rel="noopener">CERT-In Official</a>
+      </div>
+      <div class="footer-note">For educational purposes only. Always obtain written authorization before testing any system.</div>
+    </div>
+  </footer>
+
+  <script src="assets/js/nav.js"></script>
+</body>
+</html>

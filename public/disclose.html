@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Responsible Disclosure Guide | EthicalHack.dev</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand"><span class="brand-icon">&#x1F6E1;</span> EthicalHack<span class="brand-accent">.dev</span></a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="level2.html" class="nav-link">Level 2</a>
+      <a href="level3.html" class="nav-link">Level 3</a>
+      <a href="cbse-case.html" class="nav-link">CBSE Case</a>
+      <a href="cert-in.html" class="nav-link">CERT-In</a>
+      <a href="disclose.html" class="nav-link active">Disclose</a>
+    </div>
+    <button class="hamburger" id="hamburger">&#9776;</button>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <span class="page-hero-badge" style="background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)">Responsible Disclosure</span>
+    <h1>How to Report a Vulnerability</h1>
+    <p>The 60 seconds after finding a vulnerability determine everything. This guide is the difference between a criminal charge and a career-defining recognition — written for Indian security researchers.</p>
+  </div>
+
+  <!-- LEGAL CONTEXT -->
+  <div class="info-box box-danger" style="margin-bottom:32px">
+    <span class="info-box-icon">&#128683;</span>
+    <div>
+      <strong>India has no safe harbour for security researchers.</strong> Unlike the US (CFAA reform proposals), India's IT Act 2000 has no explicit exemption for ethical hacking. Section 66 (unauthorized access) carries 3 years imprisonment + &#8377;5 lakh fine. Section 70 (protected systems — any government portal) carries 10 years. Your only protection is a paper trail showing you followed responsible disclosure before touching anything.
+    </div>
+  </div>
+
+  <!-- STEP-BY-STEP -->
+  <h2 style="font-size:22px;font-weight:700;margin-bottom:20px">Step-by-Step Disclosure Process</h2>
+
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:32px">
+    <div class="step-list">
+
+      <div class="step-item">
+        <div class="step-line">
+          <div class="step-dot" style="background:var(--red);color:#fff;width:32px;height:32px;font-size:14px">1</div>
+          <div class="step-vline"></div>
+        </div>
+        <div class="step-content">
+          <div class="step-title" style="font-size:15px">Stop — document minimally</div>
+          <div class="step-desc" style="font-size:13px">Take 1–2 screenshots proving the vulnerability exists. Record a short screen capture if needed. <strong>Do NOT:</strong> download bulk data, access more than 1–2 records as proof, run automated scanners, or return to the system multiple times. The moment you have proof, stop.</div>
+          <div class="info-box box-warn" style="margin-top:10px">
+            <span class="info-box-icon">&#9888;</span>
+            <span>Every extra record you access is extra evidence against you. One screenshot proving an IDOR exists is identical legal proof to downloading 27 million records — but only one of them is criminal.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-line">
+          <div class="step-dot" style="background:var(--orange);color:#fff;width:32px;height:32px;font-size:14px">2</div>
+          <div class="step-vline"></div>
+        </div>
+        <div class="step-content">
+          <div class="step-title" style="font-size:15px">Write a professional report</div>
+          <div class="step-desc" style="font-size:13px">A clear, technical, professional report gets taken seriously and patched faster. A threatening or demanding message gets forwarded to lawyers.</div>
+          <div class="slabel" style="margin-top:12px">Report template</div>
+          <div class="code-block">Subject: Security Vulnerability Report — [Vulnerability Type] on [domain]
+
+Summary:
+  I discovered a [vulnerability class] on [URL/endpoint] that allows
+  [impact — e.g. "any unauthenticated user to access other students' data"].
+
+Steps to reproduce:
+  1. Navigate to https://example.gov.in/endpoint
+  2. [Exact steps]
+  3. [Expected vs actual behaviour]
+
+Proof of concept:
+  [Attached screenshot showing the vulnerability]
+  [NO bulk data — just enough to prove the bug exists]
+
+Severity:
+  High / Critical — [brief justification based on CVSS factors]
+
+Suggested fix:
+  [Your recommendation — parameterized queries, server-side check, etc.]
+
+My details:
+  Name:  [Your name]
+  Email: [Your email]
+  I am reporting this in good faith and have not shared this
+  information with any third party. I request acknowledgement
+  within 7 days and a patch within 90 days.
+
+Regards,
+[Name]</div>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-line">
+          <div class="step-dot" style="background:var(--accent);color:#fff;width:32px;height:32px;font-size:14px">3</div>
+          <div class="step-vline"></div>
+        </div>
+        <div class="step-content">
+          <div class="step-title" style="font-size:15px">Send to the right channel</div>
+          <div class="step-desc" style="font-size:13px">Different targets, different channels. Always CC CERT-In for Indian government targets — it creates an official timestamp that you reported responsibly.</div>
+
+          <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="mini-card" style="border-color:var(--red-border)">
+              <div class="mini-card-title" style="color:var(--red)">&#127968; Government / NIC portals</div>
+              <div class="mini-card-body">
+                Primary: <strong>incident@cert-in.org.in</strong><br>
+                CC: ciso-nic@nic.in<br>
+                CC: it@cbse.gov.in (for CBSE)<br>
+                CC: info@nciipc.gov.in (critical infra)
+              </div>
+            </div>
+            <div class="mini-card" style="border-color:var(--green-border)">
+              <div class="mini-card-title" style="color:var(--green)">&#127970; Private companies</div>
+              <div class="mini-card-body">
+                Check: security.txt at /.well-known/security.txt<br>
+                Check: HackerOne / Bugcrowd program<br>
+                Fallback: security@ or ciso@ email<br>
+                Fallback: LinkedIn to find CISO
+              </div>
+            </div>
+            <div class="mini-card" style="border-color:var(--blue-border)">
+              <div class="mini-card-title" style="color:var(--blue)">&#127760; International platforms</div>
+              <div class="mini-card-body">
+                Most large tech companies have bug bounty programs on HackerOne or Bugcrowd. Facebook, Google, Apple, Microsoft all pay &#8377;8L–&#8377;1Cr+ for critical bugs.
+              </div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-card-title">&#128220; No channel exists?</div>
+              <div class="mini-card-body">
+                Email the domain's WHOIS admin contact. If no response in 14 days, escalate to CERT-In. They can coordinate with the organization on your behalf.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-line">
+          <div class="step-dot" style="background:var(--accent2);color:#fff;width:32px;height:32px;font-size:14px">4</div>
+          <div class="step-vline"></div>
+        </div>
+        <div class="step-content">
+          <div class="step-title" style="font-size:15px">Wait — follow up — be patient</div>
+          <div class="step-desc" style="font-size:13px">Industry standard is <strong>90 days</strong> from initial report to public disclosure. Government systems may need longer — be flexible if they're actively working on a patch.</div>
+          <div style="margin-top:12px;display:flex;gap:0;flex-direction:column">
+            <div style="display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+              <div style="min-width:60px;font-size:11px;font-weight:700;color:var(--text2)">Day 1</div>
+              <div class="text-sm text-muted">Send initial report. Keep timestamp evidence (email sent receipt).</div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+              <div style="min-width:60px;font-size:11px;font-weight:700;color:var(--orange)">Day 7</div>
+              <div class="text-sm text-muted">Follow up if no acknowledgement. One polite email is fine.</div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+              <div style="min-width:60px;font-size:11px;font-weight:700;color:var(--orange)">Day 30</div>
+              <div class="text-sm text-muted">Second follow-up if still no response. CC CERT-In if not already done.</div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+              <div style="min-width:60px;font-size:11px;font-weight:700;color:var(--green)">Day 90</div>
+              <div class="text-sm text-muted">Standard disclosure window ends. Discuss public disclosure timeline — but for Indian govt targets, consult a lawyer first.</div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:center;padding:10px 0">
+              <div style="min-width:60px;font-size:11px;font-weight:700;color:var(--green)">Patched</div>
+              <div class="text-sm text-muted">Organisation confirms fix. You may now publish a write-up (no exploit code, no sensitive data). This builds your security portfolio.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-line">
+          <div class="step-dot" style="background:var(--green);color:#000;width:32px;height:32px;font-size:14px">5</div>
+        </div>
+        <div class="step-content">
+          <div class="step-title" style="font-size:15px">Keep all records — forever</div>
+          <div class="step-desc" style="font-size:13px">Screenshot every email. Export your sent mail. Keep a dated log of every action you took. If you are ever questioned by police or lawyers, your paper trail showing good-faith disclosure is your strongest legal protection — as demonstrated by the CBSE case.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DO / DON'T -->
+  <h2 style="font-size:22px;font-weight:700;margin-bottom:16px">Do vs Don't — Quick Reference</h2>
+  <div class="two-col" style="margin-bottom:32px">
+    <div style="background:var(--bg2);border:1px solid var(--green-border);border-radius:var(--radius-lg);padding:20px">
+      <div style="font-size:14px;font-weight:700;color:var(--green);margin-bottom:14px">&#10004; Ethical — safe to do</div>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:10px">
+        <li class="text-sm text-muted">&#10004; Test on your own accounts only</li>
+        <li class="text-sm text-muted">&#10004; Use public passive tools (securityheaders.com, SSL Labs)</li>
+        <li class="text-sm text-muted">&#10004; View page source and HTTP headers in your browser</li>
+        <li class="text-sm text-muted">&#10004; Inspect JS bundles on pages you are viewing</li>
+        <li class="text-sm text-muted">&#10004; Report immediately after finding proof</li>
+        <li class="text-sm text-muted">&#10004; Keep all communication professional and documented</li>
+        <li class="text-sm text-muted">&#10004; Write a public post-patch write-up (no exploit code)</li>
+        <li class="text-sm text-muted">&#10004; Apply for bug bounty reward if one exists</li>
+      </ul>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--red-border);border-radius:var(--radius-lg);padding:20px">
+      <div style="font-size:14px;font-weight:700;color:var(--red);margin-bottom:14px">&#10060; Criminal — never do</div>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:10px">
+        <li class="text-sm text-muted">&#10060; Access other users' accounts or data</li>
+        <li class="text-sm text-muted">&#10060; Run automated scanners on live government systems</li>
+        <li class="text-sm text-muted">&#10060; Download bulk data as "proof"</li>
+        <li class="text-sm text-muted">&#10060; Share vulnerability details on WhatsApp / Twitter before patch</li>
+        <li class="text-sm text-muted">&#10060; Demand money or threaten to publish</li>
+        <li class="text-sm text-muted">&#10060; Sell unpatched vulnerabilities</li>
+        <li class="text-sm text-muted">&#10060; Return to the system after initial proof</li>
+        <li class="text-sm text-muted">&#10060; Share credentials / session tokens you found</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- CONTACTS -->
+  <h2 style="font-size:22px;font-weight:700;margin-bottom:16px">Official Reporting Contacts — India</h2>
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:32px">
+    <table class="data-table" style="margin:0">
+      <thead>
+        <tr><th>Organisation</th><th>Contact</th><th>When to use</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>CERT-In</strong></td>
+          <td><span class="font-mono" style="font-size:12px">incident@cert-in.org.in<br>+91-11-22902657</span></td>
+          <td class="text-sm text-muted">Any Indian website / government system vulnerability</td>
+        </tr>
+        <tr>
+          <td><strong>NCIIPC</strong></td>
+          <td><span class="font-mono" style="font-size:12px">info@nciipc.gov.in</span></td>
+          <td class="text-sm text-muted">Critical infrastructure — power, telecom, banking, transport</td>
+        </tr>
+        <tr>
+          <td><strong>NIC CISO</strong></td>
+          <td><span class="font-mono" style="font-size:12px">ciso-nic@nic.in</span></td>
+          <td class="text-sm text-muted">NIC-hosted portals (nic.in, gov.in domains)</td>
+        </tr>
+        <tr>
+          <td><strong>CBSE IT Cell</strong></td>
+          <td><span class="font-mono" style="font-size:12px">it@cbse.gov.in</span></td>
+          <td class="text-sm text-muted">CBSE / cbse.gov.in / cbseresults.nic.in portals</td>
+        </tr>
+        <tr>
+          <td><strong>RBI CISO</strong></td>
+          <td><span class="font-mono" style="font-size:12px">cgitcso@rbi.org.in</span></td>
+          <td class="text-sm text-muted">Banking / RBI related systems</td>
+        </tr>
+        <tr>
+          <td><strong>Cyber Crime Portal</strong></td>
+          <td><span class="font-mono" style="font-size:12px">cybercrime.gov.in<br>Helpline: 1930</span></td>
+          <td class="text-sm text-muted">If you witness active cybercrime (not for bug reports)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- CBSE CASE LINK -->
+  <div style="background:linear-gradient(135deg,#1e1b4b 0%,#1a1035 100%);border:1px solid rgba(99,102,241,0.4);border-radius:var(--radius-lg);padding:28px;text-align:center;margin-bottom:32px">
+    <div style="font-size:11px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Real-World Example</div>
+    <div style="font-size:20px;font-weight:700;color:#fff;margin-bottom:8px">See How the CBSE Student Did It Right</div>
+    <div style="font-size:14px;color:#a5b4fc;margin-bottom:20px">5 critical flaws, 27M+ records exposed, responsible disclosure, IIT Kanpur offer — the complete story.</div>
+    <a href="cbse-case.html" class="btn btn-primary">Read the Full Case Study &rarr;</a>
+  </div>
+
+</div>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">&#x1F6E1; EthicalHack.dev</div>
+    <div class="footer-links">
+      <a href="level2.html">Level 2</a>
+      <a href="level3.html">Level 3</a>
+      <a href="cbse-case.html">CBSE Case</a>
+      <a href="cert-in.html">CERT-In</a>
+    </div>
+    <div class="footer-note">This guide is for educational purposes. Always obtain written authorization before security testing any system you do not own.</div>
+  </div>
+</footer>
+
+<script src="assets/js/nav.js"></script>
+</body>
+</html>

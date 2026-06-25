@@ -1,11 +1,9 @@
 const express = require("express");
-const path = require("path");
 
 const VULN = process.env.VULN_MODE !== "false";
 const PORT = process.env.PORT || 3000;
 
 const app = express();
-app.use(express.static(path.join(__dirname, "public")));
 
 // In a real deployment behind a reverse proxy you'd set this to 1 (or the
 // number of proxies). Setting it to true makes Express trust ALL
@@ -23,7 +21,20 @@ app.use("/api/orders", require("./routes/orders"));
 app.use("/api/admin",  require("./routes/admin"));
 
 // ── Mode banner ──────────────────────────────────────────────────────────────
-
+app.get("/", (req, res) => {
+  res.json({
+    app: "VulnAPI-Lab — Fake Bookstore",
+    mode: VULN ? "VULNERABLE (VULN_MODE=true)" : "HARDENED (VULN_MODE=false)",
+    vulnerabilities: VULN ? [
+      "API1 - BOLA: GET /api/orders/:id",
+      "API2 - JWT alg:none bypass: any authenticated route",
+      "API4 - Rate-limit bypass: POST /api/auth/login (spoof X-Forwarded-For)",
+      "API5 - Broken Function-Level Auth: GET /api/admin/users",
+      "API6 - Mass Assignment: POST /api/auth/register",
+    ] : ["All five vulnerabilities are patched in this mode."],
+    docs: "See /docs/ folder and VulnAPI_Lab.postman_collection.json",
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`[VulnAPI-Lab] mode=${VULN ? "VULNERABLE" : "HARDENED"} port=${PORT}`);
