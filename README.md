@@ -364,16 +364,14 @@ Your site will be live at `https://YOUR_USERNAME.github.io/ethicalhack-site/`
 
 ## Reporting Real Vulnerabilities
 
-If you find a vulnerability in an Indian government portal:
+If find a vulnerability in an Indian government portal:
 
 | Target | Contact |
 |--------|---------|
-| Any Indian website | incident@cert-in.org.in |
-| NIC / gov.in portals | ciso-nic@nic.in |
-| CBSE portals | it@cbse.gov.in |
-| Critical infrastructure | info@nciipc.gov.in |
-
-See [disclose.html](disclose.html) for the full step-by-step guide and email template.
+| Any Indian website | |
+| NIC / gov.in portals | |
+| CBSE portals | |
+| Critical infrastructure |  |
 
 ---
 
