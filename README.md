@@ -353,7 +353,7 @@ Always obtain **written authorization** before testing any system you do not own
 
 ## Reporting Real Vulnerabilities
 
-If you find a vulnerability in an Indian government portal:
+If find a vulnerability in an Indian government portal:
 
 | Target | Contact |
 |--------|---------|
