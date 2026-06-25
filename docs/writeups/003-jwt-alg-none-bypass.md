@@ -50,3 +50,4 @@ By creating a token with `alg:none`, an attacker can access administrator-only f
 ## Educational Note
 
 This vulnerability exists intentionally within **VulnAPI-Lab** for educational purposes and should never be deployed in production systems.
+s

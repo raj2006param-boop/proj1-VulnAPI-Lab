@@ -55,3 +55,4 @@ Each request bypasses the configured rate limit.
 ## Educational Note
 
 This behavior exists intentionally in **VulnAPI-Lab** to demonstrate insecure API rate-limiting implementations for educational purposes only.
+
