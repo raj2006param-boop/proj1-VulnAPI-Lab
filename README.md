@@ -1,3 +1,9 @@
+
+# ***A deliberately vulnerable REST API laboratory for learning API security through exploit demonstrations, detailed vulnerability writeups, and secure remediation techniques.***
+
+
+
+
 ```markdown
 # Security Research & Education Portfolio
 
